@@ -6,7 +6,7 @@
 <style>:root{color-scheme:light}[hidden]{display:none!important}</style>
 <title>Groot Cover Page Generator</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22%3E%3Crect width=%22512%22 height=%22512%22 rx=%22112%22 fill=%22%23173b63%22/%3E%3Cg fill=%22%234fb36f%22%3E%3Cellipse cx=%22256%22 cy=%2262%22 rx=%2216%22 ry=%2234%22/%3E%3Cellipse cx=%22214%22 cy=%2278%22 rx=%2214%22 ry=%2230%22 transform=%22rotate(-42 214 78)%22/%3E%3Cellipse cx=%22298%22 cy=%2278%22 rx=%2214%22 ry=%2230%22 transform=%22rotate(42 298 78)%22/%3E%3C/g%3E%3Crect x=%22249%22 y=%2284%22 width=%2214%22 height=%2230%22 rx=%227%22 fill=%22%237a4f33%22/%3E%3Crect x=%22196%22 y=%22100%22 width=%22120%22 height=%22110%22 rx=%2238%22 fill=%22%239a6a47%22/%3E%3Cpath d=%22M214 126c10 6 10 18 0 24M298 122c-8 8-8 18 0 26%22 stroke=%22%237a4f33%22 stroke-width=%225%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3Ccircle cx=%22232%22 cy=%22144%22 r=%2213%22 fill=%22%23fff%22/%3E%3Ccircle cx=%22280%22 cy=%22144%22 r=%2213%22 fill=%22%23fff%22/%3E%3Ccircle cx=%22234%22 cy=%22146%22 r=%226.5%22 fill=%22%2313202f%22/%3E%3Ccircle cx=%22278%22 cy=%22146%22 r=%226.5%22 fill=%22%2313202f%22/%3E%3Cpath d=%22M240 176q16 12 32 0%22 stroke=%22%2313202f%22 stroke-width=%225%22 fill=%22none%22 stroke-linecap=%22round%22/%3E%3Crect x=%22124%22 y=%22188%22 width=%22264%22 height=%22292%22 rx=%2220%22 fill=%22%23ffffff%22/%3E%3Crect x=%22124%22 y=%22188%22 width=%22264%22 height=%2226%22 rx=%2220%22 fill=%22%230e8a8a%22/%3E%3Crect x=%22124%22 y=%22200%22 width=%22264%22 height=%2214%22 fill=%22%230e8a8a%22/%3E%3Crect x=%22156%22 y=%22236%22 width=%22200%22 height=%2216%22 rx=%228%22 fill=%22%23173b63%22/%3E%3Crect x=%22190%22 y=%22264%22 width=%22132%22 height=%229%22 rx=%224.5%22 fill=%22%23b9c6d4%22/%3E%3Cg stroke=%22%23173b63%22 stroke-width=%223.5%22 fill=%22none%22 stroke-linejoin=%22round%22%3E%3Crect x=%22156%22 y=%22298%22 width=%22200%22 height=%22132%22 rx=%224%22/%3E%3Cpath d=%22M156 331H356M156 364H356M156 397H356M216 298V430%22/%3E%3C/g%3E%3Cg fill=%22%230e8a8a%22%3E%3Crect x=%22168%22 y=%22310%22 width=%2236%22 height=%229%22 rx=%224.5%22/%3E%3Crect x=%22228%22 y=%22310%22 width=%2290%22 height=%229%22 rx=%224.5%22/%3E%3C/g%3E%3Cg fill=%22%239a6a47%22%3E%3Crect x=%22132%22 y=%22178%22 width=%2234%22 height=%2222%22 rx=%2211%22/%3E%3Crect x=%22346%22 y=%22178%22 width=%2234%22 height=%2222%22 rx=%2211%22/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fredoka:wght@600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <style>
@@ -69,7 +69,7 @@ body {
 .app { max-width: 1120px; margin: 0 auto; display: grid; gap: 16px; }
 .top { display: grid; gap: 2px; }
 h1 { margin: 0; font-size: 20px; line-height: 1.25; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
-.sub { margin: 0; color: var(--muted); font-size: 14px; }
+.sub { margin: 0; color: var(--muted); font-size: clamp(11.5px, 3.5vw, 14px); white-space: nowrap; }
 .author { color: var(--fg); font-weight: 500; }
 
 .tabs { display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; }
@@ -212,13 +212,82 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
 .pols .body ul { margin: 0 0 8px; padding-left: 20px; display: grid; gap: 4px; }
 .pols .body strong { color: var(--fg); font-weight: 600; }
 @media (max-width: 480px) { .themes { grid-template-columns: 1fr; } .mh, .mb { padding-inline: 14px; } }
+
+/* ---- Little animations ---- */
+.top { position: relative; }
+.titlebar { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.titlebar h1 { flex: 1; min-width: 0; }
+.mascot { flex: none; width: clamp(58px, 16vw, 80px); border-bottom: 3px solid var(--accent); overflow: hidden; pointer-events: none; }
+.mascot svg { display: block; width: 100%; height: auto; animation: mRise .9s cubic-bezier(.22, 1.1, .36, 1) .25s both; }
+.m-leaves { transform-box: fill-box; transform-origin: 50% 100%; animation: mSway 3.6s ease-in-out 1.2s infinite alternate; }
+.m-eye { transform-box: fill-box; transform-origin: 50% 50%; animation: mBlink 5s ease-in-out 1.6s infinite; }
+@keyframes mRise { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes mSway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes mBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
+
+#sheetWrap.swap canvas { animation: sheetIn .38s ease both; }
+@keyframes sheetIn { from { opacity: .15; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
+
+.btn.is-busy { pointer-events: none; opacity: .85; }
+.btn.is-busy::before { content: ''; display: inline-block; width: 13px; height: 13px; margin-right: 8px; vertical-align: -2px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: fxSpin .7s linear infinite; }
+.btn.is-done { background: var(--ok); border-color: var(--ok); color: #fff; }
+.btn.is-done::before { content: '\2713'; display: inline-block; margin-right: 7px; font-weight: 700; animation: fxPop .4s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes fxSpin { to { transform: rotate(360deg); } }
+@keyframes fxPop { from { transform: scale(0); } to { transform: scale(1); } }
+
+.leaves { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+.leaves[hidden] { display: none; }
+.leaf { position: absolute; top: -40px; will-change: transform; animation: leafFall linear infinite; }
+.leaf i { display: block; width: 100%; height: 100%; border-radius: 0 100% 0 100%; opacity: .5; animation: leafSway ease-in-out infinite alternate; }
+@keyframes leafFall { from { transform: translate3d(0, -40px, 0) rotate(0deg); } to { transform: translate3d(var(--dx), calc(100vh + 60px), 0) rotate(var(--rot)); } }
+@keyframes leafSway { from { transform: translateX(-14px) rotate(-18deg); } to { transform: translateX(14px) rotate(18deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot svg, .m-leaves, .m-eye, #sheetWrap.swap canvas, .btn.is-done::before { animation: none !important; }
+  .leaves { display: none !important; }
+}
+
+/* ---- Animated title ---- */
+h1.brand { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .3em; row-gap: 0; font-size: clamp(28px, 7.5vw, 40px); line-height: 1.15; padding-top: .28em; letter-spacing: 0; text-wrap: wrap; }
+.groot { display: inline-flex; font-family: 'Fredoka', 'Inter', system-ui, sans-serif; font-weight: 700; }
+.ch { display: inline-block; position: relative; transform-origin: 50% 100%;
+  --bp: calc(var(--x) * -1em);
+  background-image: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.9) 50%, transparent 60%), linear-gradient(90deg, #2f8f55, #4fb36f 45%, #0e8a8a);
+  background-size: 260% 100%, 2.8em 100%; background-repeat: no-repeat; background-position: 160% 0, var(--bp) 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  animation: chIn .75s cubic-bezier(.3, 1.7, .5, 1) calc(.15s + var(--i) * .09s) both,
+             chWave 6s ease-in-out calc(2.4s + var(--i) * .12s) infinite,
+             chShine 5.5s ease-in-out calc(2.2s + var(--i) * .12s) infinite; }
+.cpg { font-size: .46em; font-weight: 600; color: var(--muted); letter-spacing: .01em; opacity: 0; animation: cpgIn .8s ease 1s both; }
+.sprout { position: absolute; left: calc(50% - .2em); top: -.3em; width: .42em; height: .42em; overflow: visible; transform-origin: 50% 100%; -webkit-text-fill-color: initial; animation: spIn .8s cubic-bezier(.3, 1.6, .5, 1) 1.3s both, spSway 3s ease-in-out 2.2s infinite alternate; }
+@keyframes chIn { from { opacity: 0; transform: translateY(.6em) scale(.4) rotate(-14deg); } to { opacity: 1; transform: none; } }
+@keyframes chWave { 0%, 55%, 100% { transform: none; } 25% { transform: translateY(-.13em); } }
+@keyframes chShine { 0% { background-position: 160% 0, var(--bp) 0; } 35%, 100% { background-position: -60% 0, var(--bp) 0; } }
+@keyframes cpgIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+@keyframes spIn { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes spSway { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .ch, .cpg, .sprout { animation: none !important; opacity: 1; }
+  .ch { background-image: linear-gradient(90deg, #2f8f55, #4fb36f 45%, #0e8a8a); background-size: 2.8em 100%; background-position: var(--bp) 0; }
+}
 </style>
 </head>
 <body>
 
 <div class="app" id="app" data-view="form">
   <header class="top">
-    <h1>Groot Cover Page Generator</h1>
+    <div class="titlebar">
+      <h1 class="brand" aria-label="Groot Cover Page Generator"><span class="groot" aria-hidden="true"><span class="ch" style="--i:0;--x:0">G</span><span class="ch" style="--i:1;--x:0.72">r</span><span class="ch" style="--i:2;--x:1.14">o</span><span class="ch" style="--i:3;--x:1.76">o</span><span class="ch t" style="--i:4;--x:2.38"><span class="tt">t</span><svg class="sprout" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 20V10" stroke="#7a4f33" stroke-width="2" stroke-linecap="round" fill="none"/><ellipse cx="6" cy="7" rx="2.6" ry="5.2" transform="rotate(-38 6 7)" fill="#4fb36f"/><ellipse cx="14" cy="7" rx="2.6" ry="5.2" transform="rotate(38 14 7)" fill="#6bbf7a"/></svg></span></span><span class="cpg" aria-hidden="true">Cover Page Generator</span></h1>
+      <div class="mascot" aria-hidden="true"><svg viewBox="0 0 120 84" xmlns="http://www.w3.org/2000/svg">
+      <g class="m-leaves"><g fill="#4fb36f"><ellipse cx="60" cy="14" rx="6" ry="13"/><ellipse cx="44" cy="20" rx="5.5" ry="12" transform="rotate(-42 44 20)"/><ellipse cx="76" cy="20" rx="5.5" ry="12" transform="rotate(42 76 20)"/></g><rect x="57" y="26" width="6" height="10" rx="3" fill="#7a4f33"/></g>
+      <rect x="34" y="30" width="52" height="62" rx="17" fill="#9a6a47"/>
+      <path d="M41 44c4 3 4 8 0 11M80 42c-3 4-3 8 0 12" stroke="#7a4f33" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <g class="m-eye"><circle cx="50" cy="56" r="6.5" fill="#fff"/><circle cx="51" cy="57" r="3.2" fill="#13202f"/></g>
+      <g class="m-eye"><circle cx="70" cy="56" r="6.5" fill="#fff"/><circle cx="69" cy="57" r="3.2" fill="#13202f"/></g>
+      <path d="M54 70q6 5 12 0" stroke="#13202f" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      <rect x="24" y="72" width="16" height="10" rx="5" fill="#9a6a47"/><rect x="80" y="72" width="16" height="10" rx="5" fill="#9a6a47"/>
+    </svg></div>
+    </div>
     <p class="sub">Created by <span class="author">Abdullah Al Saimun</span>, CSE-61, IIUC</p>
   </header>
 
@@ -417,6 +486,8 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
   </div>
 </div>
 
+<div class="leaves" id="leaves" aria-hidden="true" hidden></div>
+
 <footer class="foot">
   <p class="hint">NB: Saved covers and designs are stored in this browser on this device. Clearing browser data may remove them.</p>
   <div class="foot-btns">
@@ -472,6 +543,9 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
     <div class="feat"><h4>Themes</h4>
       <p>Light, Cream light, Dark, or follow your device automatically. Change it from <b>Settings</b>.</p></div>
 
+    <div class="feat"><h4>Small animations</h4>
+      <p>A little Groot peeks from the top and blinks, the cover preview fades in when you change a design, the Download buttons show a spinner and a tick, and you can switch on soft floating leaves in <b>Settings</b>. Everything stays still if your device asks for reduced motion.</p></div>
+
     <div class="feat"><h4>Reset to defaults</h4>
       <p>Clears the form and brings back the starting design with one tap.</p></div>
 
@@ -491,6 +565,10 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       <button type="button" class="theme-btn" data-theme-opt="system" aria-pressed="false"><span class="tsw" style="background:linear-gradient(135deg,#edf1f6 50%,#0d1620 50%)"></span>Device default</button>
     </div>
     <p class="hint" id="themeHint" style="margin-top:8px"></p>
+
+    <h3>Effects</h3>
+    <label class="check"><input type="checkbox" id="leavesToggle"> Falling leaves</label>
+    <p class="hint" style="margin-top:6px">Soft animated leaves in the background. Off by default; turn on if you like it.</p>
 
     <h3>Guidelines and policies</h3>
     <div class="pols">
@@ -1292,6 +1370,7 @@ function buildCover(d, paperKey, measure) {
   function render() {
     raf = 0;
     if (!fontsReady) return;
+    if (!window.__swapped) { window.__swapped = 1; playSwap(); }
     var layout = buildCover(cur(), state.paper, measure);
     lastLayout = layout;
     $('#charWarn').hidden = !hasUnsupported(state);
@@ -1448,11 +1527,57 @@ function buildCover(d, paperKey, measure) {
       cv.toBlob(function (b) { if (b) b.arrayBuffer().then(res); else rej(new Error('jpg')); }, 'image/jpeg', 0.93);
     });
   }
+  /* ---------- small animations ---------- */
+  var btnTimers = {};
+  function btnState(kind, st) {
+    var ids = kind === 'pdf' ? ['#pdfForm', '#pdfPrev'] : ['#jpgForm', '#jpgPrev'];
+    ids.forEach(function (id) { var b = $(id); if (!b) return; b.classList.remove('is-busy', 'is-done'); if (st) b.classList.add('is-' + st); });
+    clearTimeout(btnTimers[kind]);
+    if (st === 'done') btnTimers[kind] = setTimeout(function () { btnState(kind, ''); }, 2200);
+  }
+  function playSwap() {
+    var w = $('#sheetWrap'); if (!w) return;
+    w.classList.remove('swap'); void w.offsetWidth; w.classList.add('swap');
+  }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#tpls button, [data-mode], #bgs button, #pals button, .tabs button')) playSwap();
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target; if (t && t.matches && t.matches('#paperQuick, #paperFormat, #coverFont')) playSwap();
+  });
+  var FX_KEY = 'grootcpg-leaves', leavesBuilt = false;
+  function leavesWanted() {
+    var v = null; try { v = localStorage.getItem(FX_KEY); } catch (e) {}
+    return v === '1';
+  }
+  function buildLeaves() {
+    if (leavesBuilt) return; leavesBuilt = true;
+    var box = $('#leaves'), cols = ['#4fb36f', '#7ccf8a', '#3a9a5b', '#9a6a47', '#6bbf7a'];
+    for (var i = 0; i < 10; i++) {
+      var d = document.createElement('div'), k = document.createElement('i'), size = 12 + Math.random() * 12;
+      d.className = 'leaf';
+      d.style.left = (Math.random() * 96) + '%'; d.style.width = size + 'px'; d.style.height = (size * 1.3) + 'px';
+      d.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px'); d.style.setProperty('--rot', (Math.random() * 540 - 270) + 'deg');
+      d.style.animationDuration = (16 + Math.random() * 14) + 's'; d.style.animationDelay = (-Math.random() * 28) + 's';
+      k.style.background = cols[i % cols.length]; k.style.animationDuration = (2.6 + Math.random() * 2.4) + 's';
+      d.appendChild(k); box.appendChild(d);
+    }
+  }
+  function applyLeaves() {
+    var on = leavesWanted(); $('#leavesToggle').checked = on;
+    if (on) buildLeaves(); $('#leaves').hidden = !on;
+  }
+  $('#leavesToggle').addEventListener('change', function () {
+    try { localStorage.setItem(FX_KEY, this.checked ? '1' : '0'); } catch (e) {}
+    applyLeaves();
+  });
+  applyLeaves();
+
   async function saveFile(kind) {
     if (busy) return;
     if (kind === 'pdf' && !window.jspdf) { say('The PDF library failed to load. Check your connection and reload the page.', true); return; }
     if (!fontsReady) { say('Fonts are still loading. Try again in a moment.', true); return; }
-    busy = true;
+    busy = true; var ok = false; btnState(kind, 'busy');
     try {
       var dl = await getDownloads(), layout = buildCover(cur(), state.paper, measure);
       var name = fileName() + (kind === 'pdf' ? '.pdf' : '.jpg');
@@ -1460,11 +1585,11 @@ function buildCover(d, paperKey, measure) {
       if (dl) await dl.save({ filename: name, data: data });
       else if (!window.claude) browserDownload(name, data, kind === 'pdf' ? 'application/pdf' : 'image/jpeg');
       else { say('Downloads are not available in this view. Open the page on claude.ai and try again.', true); return; }
-      say((kind === 'pdf' ? 'PDF' : 'JPG') + ' saved: ' + name);
+      say((kind === 'pdf' ? 'PDF' : 'JPG') + ' saved: ' + name); ok = true; btnState(kind, 'done');
     } catch (e) {
       if (e && e.code === 'declined') say('Download cancelled.');
       else say('Could not create the file' + (e && (e.code || e.message) ? ' (' + (e.code || e.message) + ')' : '') + '.', true);
-    } finally { busy = false; }
+    } finally { busy = false; if (!ok) btnState(kind, ''); }
   }
   $('#pdfForm').addEventListener('click', function () { saveFile('pdf'); });
   $('#pdfPrev').addEventListener('click', function () { saveFile('pdf'); });
