@@ -171,15 +171,22 @@ input[type="file"] { font: inherit; font-size: 14px; color: var(--muted); width:
 .seg.wide { display: flex; } .seg.wide button { flex: 1; }
 .hint { margin: 0; font-size: 12.5px; color: var(--muted); }
 .tpls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
-  max-height: 340px; overflow-y: auto; overscroll-behavior: contain; padding: 3px 5px 8px 2px;
+  max-height: 340px; overflow-y: auto; overscroll-behavior-y: auto; padding: 3px 5px 8px 2px;
   scrollbar-width: thin; }
 .tpls::-webkit-scrollbar { width: 7px; }
 .tpls::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 8px; }
+.tsrow{display:flex;flex-wrap:nowrap;align-items:center;gap:6px}.tstitle,.tsapply{font-size:13px;font-weight:500;color:var(--muted);white-space:nowrap}.tsapply{margin-left:0}.tsrow select{flex:none;width:100px;min-width:0;padding:5px 6px;font-size:12px;text-overflow:ellipsis}
 .extra-controls { display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
 .save-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 .save-row input { flex:1; min-width:130px; }
+.pf-list{margin:0;display:grid;gap:8px}
+.pf-list div{display:flex;gap:10px;align-items:baseline;border-bottom:1px solid var(--line,rgba(128,128,128,.25));padding-bottom:6px}
+.pf-list dt{flex:0 0 96px;font-size:12px;opacity:.7}
+.pf-list dd{margin:0;flex:1;word-break:break-word;font-weight:600}
+.pf-list img{max-height:48px;max-width:100%;background:#fff;border-radius:4px;padding:2px}
+.pf-empty{padding:14px;border:1px dashed rgba(128,128,128,.5);border-radius:10px;text-align:center}
 .small-status { color:var(--ok); font-size:12px; min-height:1.2em; }
-@media(max-width:480px){ .tpls{grid-template-columns:repeat(2,minmax(0,1fr)); max-height:300px;} .pane-form{padding-inline:13px;} .actions .btn{flex:1 1 100%;} }
+@media(max-width:480px){ .tpls{max-height:300px;gap:6px;} .tpl{font-size:11px;padding:6px 3px;} .pane-form{padding-inline:13px;} .actions .btn{flex:1 1 100%;} }
 
 .tpl { display: grid; gap: 6px; justify-items: center; align-content: start; padding: 8px 4px; background: var(--surface-2); border: 2px solid var(--line); border-radius: 10px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 500; color: var(--fg); }
 .tpl[aria-pressed="true"] { border-color: var(--accent); background: var(--surface); }
@@ -350,8 +357,92 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
 .pv-badge{white-space:nowrap}.zbar .zfs{white-space:nowrap}
 @media (max-width:420px){.zbar{gap:2px;padding:6px}.zbar button{min-width:34px}.zbar .zpct{min-width:42px;font-size:13px}.zbar .zfs{padding:0 8px;font-size:13px}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* ---- split download button ---- */
+.dlsplit{position:relative;display:inline-flex}
+.dlsplit>.btn:first-child{border-top-right-radius:0;border-bottom-right-radius:0}
+.dlsplit .dlcaret{flex:none!important;border-top-left-radius:0;border-bottom-left-radius:0;padding:10px 11px;border-left:1px solid rgba(255,255,255,.35);display:grid;place-items:center}
+.dlmenu{position:absolute;top:calc(100% + 6px);right:0;min-width:210px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;z-index:60;display:flex;flex-direction:column}
+.dlmenu button{font:inherit;font-size:14.5px;text-align:left;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:var(--fg);cursor:pointer}
+.dlmenu button:hover,.dlmenu button:focus-visible{background:var(--surface-2);outline:none}
+.actions .dlsplit{flex:0 0 auto}
+@media(max-width:480px){.actions .dlsplit{flex:1 1 100%}.actions .dlsplit>.btn:first-child{flex:1 1 auto}.dlmenu{left:0;right:0}}
+/* ---- validation ---- */
+.histbar{position:sticky;top:0;z-index:6;background:var(--bg)}.histbar .vchip{display:block;padding:6px 0}.histbar .vchip[hidden]{display:none}
+.vchip{font-size:12.5px;font-weight:600;color:var(--err)}
+.verr{font-size:12px;margin-top:3px;color:var(--err)}
+.verr.warn{color:var(--warn-fg)}
+[data-k][aria-invalid="true"],#pfName[aria-invalid="true"],#pfId[aria-invalid="true"]{border-color:var(--err)!important;box-shadow:0 0 0 1px var(--err)}
+[data-k][data-vwarn="1"]{border-color:#c28a00!important}
+.f output{font-weight:600;color:var(--accent);margin-left:6px}
+.f input[type=range]{padding:0;height:28px}
+.f small.hint{align-self:center}
+.sigrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#printLayer{position:fixed;inset:0;z-index:300;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch}
+#printLayer[hidden]{display:none}
+.pl-bar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top,0px));background:var(--surface);border-bottom:1px solid var(--line)}
+.pl-opts{display:flex;flex-wrap:wrap;gap:4px 18px;padding:10px 14px 2px}
+.pl-tip{font-size:12.5px;line-height:1.45;color:var(--muted,#666);padding:4px 14px 8px;margin:0}
+.pl-page{padding:6px 12px 28px;display:grid;justify-items:center}
+#plImg{width:100%;max-width:760px;height:auto;box-shadow:var(--shadow);background:#fff}
+@media print{
+  html,body{margin:0!important;padding:0!important;background:#fff!important;height:auto!important;overflow:visible!important}
+  body>*:not(#printLayer){display:none!important}
+  #printLayer{position:static!important;display:block!important;overflow:visible!important;background:#fff!important}
+  .pl-bar,.pl-opts,.pl-tip{display:none!important}
+  .pl-page{padding:0!important;display:block!important}
+  #plImg{width:var(--plw)!important;height:var(--plh)!important;max-width:none!important;box-shadow:none!important;display:block!important;page-break-inside:avoid;break-inside:avoid}
+}
+.rq{color:var(--err);font-weight:700}
+#dlgProfile .grid2{align-items:start}
+#pfStatus.err{color:var(--err)}
+#printLayer .vh,.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+#pfSigImg{height:38px;max-width:140px;object-fit:contain;border:1px solid var(--line);border-radius:6px;background:#fff;padding:2px}
+</style>
+<style id="smooth">
+/* ---- smoother feel ---- */
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,select,input,textarea,summary,.tpl,.pal,.bgsw,.drop{touch-action:manipulation}
+button,select,input,textarea,.tpl,.pal,.bgsw,.drop,.theme-btn,.dr-item,.seg button,.tabs button{transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .2s ease,transform .14s ease,opacity .18s ease,filter .18s ease}
+.btn:active,.tpl:active,.pal:active,.theme-btn:active,.bgsw:active,.seg button:active,.tabs button:active{transform:scale(.97)}
+.tpl:hover,.pal:hover{transform:translateY(-1px)}
+.tpl:active,.pal:active{transform:scale(.97)}
+dialog.modal[open]{animation:dlgIn .26s cubic-bezier(.2,.8,.2,1)}
+dialog.modal[open]::backdrop{animation:bdIn .26s ease}
+@keyframes dlgIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes bdIn{from{opacity:0}to{opacity:1}}
+details[open]>.fields{animation:fieldsIn .26s ease both}
+@keyframes fieldsIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes paneIn{from{opacity:0}to{opacity:1}}
+@media (max-width:899px){.pane{animation:paneIn .24s ease both}}
+.sub-view:not([hidden]){animation:fieldsIn .24s ease both}
+.dlmenu:not([hidden]){animation:dlgIn .18s ease both}
+.stage,.pane-form,.pv-mini{scroll-behavior:smooth}
+.pane-form{-webkit-overflow-scrolling:touch}
+canvas#paper,canvas#paper2{transition:opacity .15s ease}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+<style id="plPage"></style>
 </head>
 <body>
+<div id="printLayer" hidden role="dialog" aria-label="Print preview">
+  <div class="pl-bar">
+    <button type="button" class="btn small" id="plPrint">Print</button>
+    <button type="button" class="btn ghost small" id="plPdf">Save PDF</button>
+    <button type="button" class="btn ghost small" id="plShare" hidden>Share</button>
+    <button type="button" class="btn ghost small" id="plClose">Close</button>
+  </div>
+  <div class="pl-opts">
+    <label class="check"><input type="checkbox" id="plReady"> Print-ready</label>
+    <label class="check"><input type="checkbox" id="plBW"> Black &amp; white</label>
+    <label class="check"><input type="checkbox" id="plSafe"> Inside printer margins</label>
+  </div>
+  <p class="pl-tip">In the print dialog choose the same paper size, scale 100% (or &ldquo;Actual size&rdquo;) and margins &ldquo;None&rdquo;. If nothing opens in this view, use Save PDF or Share and print from there.</p>
+  <div class="pl-page"><img id="plImg" alt="Cover page print preview"></div>
+</div>
+
 
 <div class="app" id="app" data-view="form">
   <header class="top">
@@ -374,6 +465,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
 
   <div class="layout">
     <section class="pane pane-form" aria-label="Cover page details">
+      
       <details open>
         <summary>Cover type &amp; design</summary>
         <div class="fields">
@@ -425,6 +517,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       <details open data-modes="lab asg">
         <summary>Submitted by</summary>
         <div class="fields">
+          <button type="button" class="btn ghost small" id="useProfile" hidden>Fill from my Student Profile</button>
           <label class="f"><span>Name</span><input type="text" id="byName" data-k="byName" autocomplete="off"></label>
           <div class="grid2">
             <label class="f"><span>ID</span><input type="text" id="byId" data-k="byId" autocomplete="off"></label>
@@ -432,7 +525,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
           </div>
           <div class="f"><label for="semTxt">Semester</label>
             <div class="inline">
-              <input type="text" id="semTxt" data-k="bySem" maxlength="12" placeholder="Type (max 12 letters)" autocomplete="off">
+              <input type="text" id="semTxt" data-k="bySem" data-max12 maxlength="12" placeholder="Type (max 12 letters)" autocomplete="off">
               <select id="semSel" aria-label="Choose semester" class="semsel"></select>
             </div>
           </div>
@@ -469,7 +562,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
           </div>
           <div class="grid2">
             <label class="f"><span>Section</span><input type="text" data-k="bySec" autocomplete="off"></label>
-            <label class="f"><span>Semester</span><input type="text" data-k="bySem" maxlength="12" placeholder="Max 12 letters" autocomplete="off"></label>
+            <label class="f"><span>Semester</span><input type="text" data-k="bySem" data-max12 maxlength="12" placeholder="Max 12 letters" autocomplete="off"></label>
           </div>
         </div>
       </details>
@@ -512,7 +605,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
         <div class="fields">
           <label class="f"><span>University</span><input type="text" id="university" data-k="university" autocomplete="off"></label>
           <label class="f"><span>Department</span><select class="dept" id="department" data-k="department"></select></label>
-          <label class="f"><span>Upload your own logo (optional)</span><input type="file" id="logoFile" accept="image/*"></label>
+          <label class="f"><span>Upload your own logo (PNG)</span><input type="file" id="logoFile" accept="image/*"></label>
           <label class="check"><input type="checkbox" id="showLogo" data-k="showLogo"> Show logo</label>
           <label class="check" data-modes="lab asg"><input type="checkbox" id="showRemarks" data-k="showRemarks"> Show remarks box and ruled lines</label>
         </div>
@@ -552,6 +645,60 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
         </div>
       </details>
       <details>
+        <summary>Language, border &amp; extras</summary>
+        <div class="fields">
+          <div class="grid2">
+            <label class="f"><span>Cover language</span><select data-k="lang"><option value="en">English</option><option value="bn">&#2476;&#2494;&#2434;&#2482;&#2494; (labels)</option></select></label>
+            <label class="f"><span>Border style</span><select data-k="border"><option value="none">None</option><option value="thin">Thin line</option><option value="thick">Thick line</option><option value="double">Double line</option><option value="dashed">Dashed</option><option value="corners">Corners</option></select></label>
+          </div>
+          <div class="f"><span>Text size<output id="fscaleOut">100%</output></span>
+            <div class="sigrow"><input type="range" min="70" max="130" step="1" data-k="fscale" aria-label="Text size slider" style="flex:1;min-width:120px"><input type="number" id="fscaleNum" min="70" max="130" step="1" inputmode="numeric" aria-label="Text size in percent" style="width:76px"><small class="hint">%</small></div></div>
+          <div class="f"><div class="tsrow"><span class="tstitle">Text style</span><span class="tsapply">Apply to</span><select id="fTarget" aria-label="Apply text style to">
+              <option value="all">Whole cover</option>
+              <option value="head">University &amp; department</option>
+              <option value="title">Cover heading &amp; group</option>
+              <option value="label">Field labels</option>
+              <option value="course">Course &amp; experiment details</option>
+              <option value="to">Submitted to</option>
+              <option value="by">Submitted by</option>
+            </select></div>
+            <div class="sigrow">
+              <label class="check"><input type="checkbox" id="fBold"> <b>Bold</b></label>
+              <label class="check"><input type="checkbox" id="fItalic"> <i>Italic</i></label>
+              <label class="check"><input type="checkbox" id="fUnder"> <u>Underline</u></label>
+            </div>
+            <label class="f"><span>Letter case</span><select id="fCase"><option value="normal">As typed</option><option value="upper">UPPERCASE</option><option value="lower">lowercase</option><option value="title">Title Case</option></select></label>
+            <p class="hint">Part styles add to the whole-cover style. &bull; marks parts with a style.</p>
+          </div>
+          <label class="f"><span>Watermark text (optional)</span><input type="text" data-k="wmText" maxlength="24" autocomplete="off" placeholder="e.g. DRAFT"></label>
+          <label class="check"><input type="checkbox" id="showSig" data-k="showSig"> Show signature lines at the bottom</label>
+          <div class="grid2">
+            <div class="f"><span>Student signature</span><input type="file" id="sigSFile" accept="image/png,image/jpeg,image/webp"><div class="sigrow"><small class="hint" id="sigSName"></small><button type="button" class="btn ghost small" id="sigSDel" hidden>Remove</button></div></div>
+            <div class="f"><span>Teacher signature</span><input type="file" id="sigTFile" accept="image/png,image/jpeg,image/webp"><div class="sigrow"><small class="hint" id="sigTName"></small><button type="button" class="btn ghost small" id="sigTDel" hidden>Remove</button></div></div>
+          </div>
+          <p class="hint">Max 2 MB &middot; PNG, JPG or WebP.</p>
+          <label class="check"><input type="checkbox" data-k="showQr"> Add a QR code</label>
+          <label class="f"><span>QR code text or link</span><input type="text" data-k="qrText" maxlength="300" autocomplete="off" placeholder="https://..."></label>
+          <p class="hint" id="qrNote" aria-live="polite"></p>
+          <div class="grid2">
+            <label class="f"><span>QR size</span><select data-k="qrSize"><option value="sm">Small</option><option value="md">Medium</option><option value="lg">Large</option></select></label>
+            <label class="f"><span>QR position</span><select data-k="qrPos"><option value="center">Bottom center</option><option value="left">Bottom left</option><option value="right">Bottom right</option></select></label>
+          </div>
+          <label class="f"><span>Text under QR (max 24 letters, empty = none)</span><input type="text" data-k="qrLabel" maxlength="24" autocomplete="off" placeholder="Scan"></label>
+          <p class="hint">Left/right QR positions work only when signature lines are off.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Print-ready mode</summary>
+        <div class="fields">
+          <label class="check"><input type="checkbox" data-k="printReady"> Print-ready mode (white paper, no color fills, 300 DPI)</label>
+          <label class="check"><input type="checkbox" data-k="printBW"> Black &amp; white (saves color ink)</label>
+          <label class="check"><input type="checkbox" data-k="printSafe"> Keep everything inside printer margins</label>
+          <p class="hint">Most printers cannot print to the very edge of the paper. &ldquo;Inside printer margins&rdquo; shrinks the cover a little so nothing is cut off. Press Print now to see a preview with print, save-as-PDF and share options.</p>
+          <div class="save-row"><button type="button" class="btn ghost small" id="printNow">Print now</button></div>
+        </div>
+      </details>
+      <details>
         <summary>Saved covers &amp; designs (this device)</summary>
         <div class="fields">
           <label class="f"><span>Saved on this device</span><select id="savedCovers"><option value="">Choose a saved cover or design</option></select></label>
@@ -584,8 +731,8 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       </details>
 
       <div class="actions">
-        <button type="button" class="btn" id="pdfForm">Download PDF</button>
-        <button type="button" class="btn ghost" id="jpgForm">Download JPG</button>
+        <label class="f" style="flex:1 1 100%"><span>File name (optional)</span><input type="text" id="fnameIn" data-k="fname" maxlength="80" autocomplete="off" placeholder="Auto: course code, number, ID"></label>
+        <div class="dlsplit"><button type="button" class="btn" id="pdfForm">Download PDF</button><button type="button" class="btn dlcaret" aria-label="More formats" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="dlmenu" role="menu" hidden></div></div>
         <button type="button" class="btn ghost" id="reset">Reset to defaults</button>
       </div>
     </section>
@@ -594,7 +741,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       <div class="zbar" data-pv="main"></div>
       <div class="toolbar">
         <label class="f" style="min-width:125px"><span>Paper size</span><select id="paperQuick"><option value="a3">A3</option><option value="a4">A4</option><option value="a5">A5</option><option value="b5">B5</option><option value="letter">Letter</option><option value="legal">Legal</option><option value="executive">Executive</option><option value="tabloid">Tabloid</option></select></label>
-        <div class="inline"><button type="button" class="btn" id="pdfPrev">Download PDF</button><button type="button" class="btn ghost" id="jpgPrev">Download JPG</button></div>
+        <div class="dlsplit"><button type="button" class="btn" id="pdfPrev">Download PDF</button><button type="button" class="btn dlcaret" aria-label="More formats" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="dlmenu" role="menu" hidden></div></div>
       </div>
       <p class="warn" id="charWarn" hidden>Some characters you typed may not show on the cover (only English and Bengali are supported). Please check the preview.</p>
       <div class="stage"><div id="sheetWrap"><canvas id="paper" role="img" aria-label="Cover page preview"></canvas></div></div>
@@ -615,6 +762,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
     <div class="dr-brand" id="drTitle"><span class="gr" aria-label="Groot"><span class="lt" style="--i:0" aria-hidden="true">G</span><span class="lt" style="--i:1" aria-hidden="true">r</span><span class="lt eye" style="--i:2" aria-hidden="true">o</span><span class="lt eye e2" style="--i:3" aria-hidden="true">o</span><span class="lt tt" style="--i:4" aria-hidden="true">t<svg class="sprout" viewBox="0 0 20 20" aria-hidden="true"><path class="lf lf1" d="M10 19C4 17 2 11 3 5C8 7 10 12 10 19Z" fill="#5cc27a"/><path class="lf lf2" d="M10 19C16 17 18 11 17 5C12 7 10 12 10 19Z" fill="#7cc243"/><path class="lf lf3" d="M10 19C6 13 7 6 10 1C13 6 14 13 10 19Z" fill="#2e9e5b"/></svg></span></span> <span class="gsub">Cover Page Generator</span></div>
   </div>
   <nav class="dr-list">
+      <button type="button" class="dr-item" id="openProfile" data-dr data-dlg="dlgProfile" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span>Student Profile</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
       <button type="button" class="dr-item" id="openTheme" data-dr data-dlg="dlgTheme" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span>Theme</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
       <button type="button" class="dr-item" id="openFeatures" data-dr data-dlg="dlgFeatures" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9.3l-4 3.9 1 5.6-5-2.8-5 2.8 1-5.6-4-3.9 5.5-.8z"/></svg><span>Features</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
       <button type="button" class="dr-item" id="openSettings" data-dr data-dlg="dlgSettings" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -648,15 +796,24 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       <p>Choose 1 to 30 rows and keep 2 to 8 table columns. The starting columns are Sl no, Date, Experiment Name, Page and Signature; you can rename, add or remove them. Type each experiment's name, date and page number, or leave a row empty to write it by hand after printing.</p>
       <div class="eg">Example: Type 5 experiments now, keep the other rows empty, print, and fill the rest with a pen later.</div></div>
     <div class="feat"><h4>Header, logo and remarks</h4>
-      <p>Change the university and department names, show or hide the logo, or upload your own logo. For Lab Report and Assignment you can also turn the remarks box and ruled lines on or off.</p></div>
+      <p>Change the university and department names, show or hide the logo, or upload your own logo (PNG works best). For Lab Report and Assignment you can also turn the remarks box and ruled lines on or off.</p></div>
     <div class="feat"><h4>Colors</h4>
       <p>15 ready-made color themes such as Navy &amp; Teal, Maroon &amp; Gold and White &amp; Forest Green. You can then fine-tune the main, accent, text, line and page background colors, or pick a quick background: White, Ivory, Sand, Paper gray, Sky, Mint or Blush.</p>
       <div class="eg">Example: Pick <b>Classic Black</b> if you will print in black and white.</div></div>
     <div class="feat"><h4>Paper size and font</h4>
       <p>Paper: A3, A4, A5, B5, US Letter, US Legal, Executive or Tabloid. Cover font: Caladea, Inter, Georgia, Arial or Noto Sans Bengali.</p>
       <div class="eg"><b>Paper sizes:</b><br>A3 &middot; 297&times;420 mm<br>A4 &middot; 210&times;297 mm<br>A5 &middot; 148&times;210 mm<br>B5 &middot; 176&times;250 mm<br>Letter &middot; 8.5&times;11 in<br>Legal &middot; 8.5&times;14 in<br>Executive &middot; 7.25&times;10.5 in<br>Tabloid &middot; 11&times;17 in</div></div>
-    <div class="feat"><h4>Download as PDF or JPG</h4>
-      <p>PDF is best for printing and submitting. JPG is a sharp, high-resolution image that is handy for sharing in chats or uploading to a portal. The file name is made for you from your course code, experiment or assignment number and your ID. Group Project files use the course code and group number, and Lab Index files use the course code.</p></div>
+    <div class="feat"><h4>Student Profile</h4>
+      <p>Save your details once and they fill the &ldquo;Submitted by&rdquo; part of every cover. Open it from the menu to see your saved details, then press Add Details (or Edit Profile) to add or change your university, department, name, ID, section, semester (up to 12 letters) and an optional signature (max 2 MB, up to 2000&times;2000 px, best about 600&times;200 px, PNG, JPG or WebP; it is used on a cover only when &ldquo;Show signature lines&rdquo; is on). They are stored only in this browser. Clearing your browser data, using &ldquo;Reset everything&rdquo;, or pressing Clear in the profile removes them.</p></div>
+    <div class="feat"><h4>Language, border and extras</h4>
+      <p>Switch cover labels to Bangla, set the text size from 70% to 130% in steps of 1 (slider or typed number), make text bold, italic, underlined or change its letter case, add a border, a watermark, signature lines or a QR code with size, position and label options.</p>
+      <p>Text style can be set for the whole cover or for one part only: university &amp; department, cover heading, field labels, course details, Submitted to, or Submitted by. Part styles add to the whole-cover style.</p>
+      <p><b>Signature:</b> max 2 MB, up to 2000&times;2000 px (larger is resized), best about 600&times;200 px, PNG, JPG or WebP. Use a dark signature on a plain or transparent background. Signature lines and the QR code sit near the bottom of the page, so if your template has a footer band there, turn them off or choose another template.</p>
+      <p><b>QR code:</b> links such as example.com become https://example.com automatically, and in PDF files the QR code is clickable. Left and right positions work only when &ldquo;Show signature lines&rdquo; is off; otherwise the QR code stays at the center.</p></div>
+    <div class="feat"><h4>Print-ready mode</h4>
+      <p>Plain white paper, no full-page color fills and about 300 DPI export. You can also print in black and white to save ink, and keep everything inside printer margins so nothing gets cut off. &ldquo;Print now&rdquo; opens a preview with Print, Save PDF and Share, and works on both PC and phone.</p></div>
+    <div class="feat"><h4>Download as PDF, PNG, Word and more</h4>
+      <p>PDF is the default and is best for printing and submitting. The small arrow next to it opens more formats: JPG, PNG and WebP images, a Word file (the cover is placed as a full-page picture), an SVG and a direct Print option. The file name is made for you from your course code, experiment or assignment number and your ID. Group Project files use the course code and group number, and Lab Index files use the course code. Prefer your own name? Type it in <b>File name</b> above the Download button.</p></div>
     <div class="feat"><h4>Attach your own PDF</h4>
       <p>Upload your finished report or assignment (PDF, up to 20 MB). The cover becomes its first page, and you download one single PDF.</p>
       <div class="eg">Example: Upload <b>my-report.pdf</b>, press Download PDF, and get cover + report together.</div></div>
@@ -673,6 +830,44 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       <p>Clears the form and brings back the starting design with one tap. It asks you to click twice to confirm, and your saved covers and designs are kept.</p></div>
     <div class="feat"><h4>Safe text check</h4>
       <p>English and Bengali both work on the cover. If you type letters from other scripts that the cover may not draw, a yellow warning appears so you can check the preview before printing.</p></div>
+  </div>
+</dialog>
+
+<dialog class="modal" id="dlgProfile" aria-labelledby="ttl_dlgProfile">
+  <div class="mh"><button type="button" class="dlg-btn" data-back aria-label="Back"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button><h2 id="ttl_dlgProfile" data-title="Student Profile">Student Profile</h2><button type="button" class="dlg-btn" data-closeall aria-label="Close menu"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></button></div>
+  <div class="mb">
+    <div id="pfView">
+      <div id="pfEmpty" class="pf-empty" hidden>
+        <p><strong>No information has been saved here yet.</strong></p>
+        <p class="hint">Press <strong>Add Details</strong> below to enter your details and save them. They stay on this device and can fill any cover in one tap.</p>
+      </div>
+      <dl id="pfList" class="pf-list" hidden></dl>
+      <div class="save-row" style="margin-top:12px">
+        <button type="button" class="btn small" id="pfEdit">Edit Profile</button>
+        <button type="button" class="btn ghost small" id="pfUse" hidden>Use on cover</button>
+        <button type="button" class="btn ghost small" id="pfClear" hidden>Clear profile</button>
+      </div>
+      <p class="small-status" id="pfViewStatus" aria-live="polite"></p>
+    </div>
+    <div class="fields" id="pfForm" style="padding:0" hidden>
+      <label class="f"><span>University</span><input type="text" id="pfUni" maxlength="90" autocomplete="off"></label>
+      <label class="f"><span>Department</span><select class="dept" id="pfDept"></select></label>
+      <label class="f"><span>Full name</span><input type="text" id="pfName" maxlength="80" autocomplete="off"></label>
+      <div class="grid2">
+        <label class="f"><span>Student ID</span><input type="text" id="pfId" maxlength="20" autocomplete="off"></label>
+        <label class="f"><span>Section</span><input type="text" id="pfSec" maxlength="12" autocomplete="off"></label>
+      </div>
+      <div class="f"><label for="pfSem">Semester</label><div class="inline"><input type="text" id="pfSem" data-max12 maxlength="12" placeholder="Type (max 12 letters)" autocomplete="off"><select id="pfSemSel" class="semsel" aria-label="Choose semester"></select></div></div>
+      <div class="f"><span>Your signature (optional)</span>
+        <div class="sigrow"><button type="button" class="btn ghost small" id="pfSigBtn">Upload signature</button><input type="file" id="pfSigFile" accept="image/png,image/jpeg,image/webp" class="vh" tabindex="-1" aria-hidden="true"><img id="pfSigImg" alt="Your signature" hidden><button type="button" class="btn ghost small" id="pfSigDel" hidden>Remove</button></div>
+        <p class="hint" style="margin-top:4px">Max 2 MB &middot; PNG, JPG or WebP.</p>
+      </div>
+      <div class="save-row">
+        <button type="button" class="btn small" id="pfSave">Save profile</button>
+        <button type="button" class="btn ghost small" id="pfCancel">Cancel</button>
+      </div>
+      <p class="small-status" id="pfStatus" aria-live="polite"></p>
+    </div>
   </div>
 </dialog>
 
@@ -712,7 +907,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
       <button type="button" class="dr-item" data-sub="backup"><span>Saved on this device</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
     </nav>
     <section class="sub-view" data-sub-id="data" data-title="Your data on this device" hidden>
-    <p class="hint" style="margin-bottom:8px">Saved covers and designs are stored only in this browser.</p>
+    <p class="hint" style="margin-bottom:8px">Saved covers, designs and your student profile are stored only in this browser.</p>
     <div class="save-row">
       <button type="button" class="btn ghost small" id="clearSaved">Delete saved covers &amp; designs</button>
       <button type="button" class="btn ghost small" id="clearAll">Reset everything</button>
@@ -799,7 +994,7 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
     <p>Groot Cover Page Generator. Created by <strong>Abdullah Al Saimun</strong>, CSE-61, IIUC.</p>
     <p>Made to help students prepare neat lab report, assignment, group project and lab index covers quickly.</p>
     <h3>Version</h3>
-    <p>Version 20261117.008.01</p>
+    <p>Version 20261117.009.01</p>
     <p>Last updated: 17 November 2026</p>
   </div>
 </dialog>
@@ -814,8 +1009,15 @@ dialog.modal::backdrop { background: rgba(8, 14, 22, .55); }
 /* ---- Cover page layout: pure functions, no DOM. Units are PDF points, y grows downward. ---- */
 var PAPERS = { a3: [841.89, 1190.55], a4: [595.28, 841.89], letter: [612, 792], a5: [419.53, 595.28], legal: [612, 1008], b5: [498.9, 708.66], executive: [521.86, 756], tabloid: [792, 1224] };
 var NOT_ALLOWED = /[^ -~\u00a0-\u00ff\u2013\u2014\u2018\u2019\u201c\u201d\u2022\u2026\u0980-\u09ff\u200c\u200d]/;
-var logoAR = 1.05, ORIG_LOGO = LOGO_URI;
+var logoAR = 1.05, ORIG_LOGO = LOGO_URI, extraAR = {}, extraImg = {}, profSig = '';
 
+function cut12(s) { var a = Array.from(String(s == null ? '' : s)); return a.length > 12 ? a.slice(0, 12).join('') : a.join(''); }
+function qrNorm(t) {
+  t = String(t == null ? '' : t).replace(/\s+/g, ' ').trim(); if (!t) return '';
+  if (/^[a-z][a-z0-9+.-]*:/i.test(t)) return t;
+  if (/^www\./i.test(t) || /^[^\s@\/]+\.[a-z]{2,}(\/\S*)?$/i.test(t)) return 'https://' + t;
+  return t;
+}
 function tidy(s) { return String(s == null ? '' : s).replace(/\s+/g, ' ').trim(); }
 function safeText(s) { return tidy(s); }
 function hasUnsupported(d) {
@@ -865,7 +1067,7 @@ function buildCover(d, paperKey, measure) {
   function rect(x, y, w, h, f) { prims.push({ t: 'rect', x: x, y: y, w: w, h: h, fill: f || C.ln }); }
   function text(s, x, y, size, o) {
     if (!s) return; o = o || {};
-    prims.push({ t: 'text', str: s, x: x, y: y, size: size, bold: !!o.bold, color: o.color || C.ink, align: o.align || 'left' });
+    prims.push({ t: 'text', str: s, x: x, y: y, size: size, bold: !!o.bold, color: o.color || C.ink, align: o.align || 'left', g: gOf(s) });
   }
   function frame(x, y, w, h, t, f) { rect(x, y, w, t, f); rect(x, y + h - t, w, t, f); rect(x, y, t, h, f); rect(x + w - t, y, t, h, f); }
   function box(x, y, w, h) { frame(x - LW / 2, y - LW / 2, w + LW, h + LW, LW, C.ln); }
@@ -891,6 +1093,24 @@ function buildCover(d, paperKey, measure) {
   var byR = [['Name: ', d.byName], ['ID: ', d.byId], ['Semester: ', d.bySem], ['Section: ', d.bySec]].map(function (r) {
     var v = safeText(r[1]); return v ? r[0] + v : '';
   });
+
+  /* which part of the cover a text belongs to (for per-part text style) */
+  function gOf(s) {
+    var t = String(s), i, r;
+    if (!t) return '';
+    if (t === type || (group && (t === 'Group: ' + group || t === 'Group ' + group || t === 'GROUP ' + group.toUpperCase()))) return 'title';
+    if (/^(SUBMITTED TO|SUBMITTED BY|DATE OF SUBMISSION|SUBMISSION DATE|REMARKS :|SL|NAME|ID|EXPERIMENT LIST)$/.test(t) || t.indexOf('Date of Submission:') === 0) return 'label';
+    for (i = 0; i < rows.length; i++) if (t === rows[i][0]) return 'label';
+    if (t === uni || t === dep) return 'head';
+    for (i = 0; i < toL.length; i++) if (toL[i] && t === toL[i]) return 'to';
+    for (i = 0; i < byR.length; i++) if (byR[i] && t === byR[i]) return 'by';
+    if (typeof gm !== 'undefined' && gm) for (i = 0; i < gm.length; i++) if ((gm[i][0] && t === gm[i][0]) || (gm[i][1] && t === gm[i][1])) return 'by';
+    if (typeof secSem !== 'undefined' && secSem && t === secSem) return 'by';
+    try { if (t === fmtDate(d.date)) return 'course'; } catch (e) {}
+    for (i = 0; i < rows.length; i++) { r = rows[i][1]; if (r && (t === r || (rows[i][3] && r.indexOf(t) >= 0))) return 'course'; }
+    if (t.length > 2 && (uni.indexOf(t) >= 0 || dep.indexOf(t) >= 0)) return 'head';
+    return '';
+  }
 
   function hdr(x0, x1, y0, ctr, sz, c1, c2) {
     var w = x1 - x0, c = ctr ? (x0 + x1) / 2 : x0, al = ctr ? 'center' : 'left';
@@ -1263,6 +1483,80 @@ function buildCover(d, paperKey, measure) {
     });
   };
 
+  /* Split Banner: tilted colour header with the title inside, info grid below */
+  T.x4 = function () {
+    var bh = 310 + 10 * gs, mid = W / 2;
+    poly([[0, 0], [W, 0], [W, bh - 70], [0, bh]], C.pri);
+    poly([[0, bh], [W, bh - 70], [W, bh - 58], [0, bh + 12]], C.acc);
+    if (d.showLogo) { disc(mid, 64, 38, WH); logo(mid - 30, 34, 60, 60); }
+    text(uni, mid, 140, fit(uni, CW, 19, 10, 1), { bold: 1, color: WH, align: 'center' });
+    text(dep, mid, 162, fit(dep, CW, 11.5, 7.5, 1), { bold: 1, color: tint(C.acc, 0.6), align: 'center' });
+    rect(mid - 30, 176, 60, 2.5, tint(C.acc, 0.5));
+    text(type, mid, 226, fit(type, CW, 32, 16, 1), { bold: 1, color: WH, align: 'center' });
+    if (group) text('Group ' + group, mid, 252, 13, { bold: 1, color: WH, align: 'center' });
+    var gw = (CW - 28) / 2, y2 = bh + 38;
+    [rows[0], rows[1], rows[2], ['SUBMISSION DATE', fmtDate(d.date)]].forEach(function (c, i) {
+      var cx = L + (i % 2) * (gw + 28), cy = y2 + Math.floor(i / 2) * 58;
+      rect(cx, cy + 40, gw, 0.8, C.sep); cellPair(cx, cy, gw, c[0], c[1]);
+    });
+    y2 += 122;
+    var ls = wrapText(rows[3][1], CW - 44, 13.5, 0, measure), th = Math.max(58, ls.length * 18 + 38);
+    rect(L, y2, CW, th, TN); rect(L, y2, CW, 3, C.acc);
+    text(rows[3][0], L + 18, y2 + 22, 9, { bold: 1, color: C.acc });
+    ls.forEach(function (s, i) { text(s, L + 18, y2 + 44 + i * 18, 13.5); });
+    y2 += th + 22 * gs;
+    [[L, 'SUBMITTED TO', toL], [L + gw + 28, 'SUBMITTED BY', byR]].forEach(function (b) {
+      text(b[1], b[0], y2 + 10, 11.5, { bold: 1, color: C.pri }); rect(b[0], y2 + 17, 34, 2.5, C.acc);
+      b[2].forEach(function (s, i) { if (s) text(s, b[0], y2 + 38 + i * 18.5, fit(s, gw, 11.5, 8, 0)); });
+    });
+    rem(y2 + 96);
+  };
+  /* Circle Seal: ringed logo, centred text, tinted party panel, footer stripe */
+  T.x5 = function () {
+    var mid = W / 2;
+    [[50, 50], [W - 50, 50]].forEach(function (p) { disc(p[0], p[1], 24, TN); disc(p[0], p[1], 11, C.acc); });
+    rect(0, H - 16, W, 16, C.pri); rect(0, H - 21, W, 3, C.acc);
+    var cy = 112;
+    if (d.showLogo) { disc(mid, cy, 62, C.pri); disc(mid, cy, 58, BG); disc(mid, cy, 54, TN); logo(mid - 34, cy - 36, 68, 72); } else cy = 40;
+    var y = cy + 92;
+    text(uni, mid, y, fit(uni, CW - 20, 19, 10, 1), { bold: 1, color: C.pri, align: 'center' });
+    text(dep, mid, y + 21, fit(dep, CW - 20, 11.5, 7.5, 1), { bold: 1, color: C.acc, align: 'center' });
+    disc(mid - 14, y + 38, 3, C.acc); disc(mid, y + 38, 3, C.pri); disc(mid + 14, y + 38, 3, C.acc);
+    var ty = y + 82;
+    text(type, mid, ty, fit(type, CW - 30, 32, 16, 1), { bold: 1, color: C.pri, align: 'center' });
+    if (group) text('Group: ' + group, mid, ty + 24, 13, { bold: 1, color: C.acc, align: 'center' });
+    var yy = stack(L + 30, ty + (group ? 42 : 28), CW - 60, { c: 1, gap: 6 }) + 8 * gs, cw = CW / 2 - 8;
+    rect(L, yy, CW, 112, TN); rect(L, yy, CW, 3, C.acc); vline(MID, yy + 14, yy + 98, C.acc);
+    party(L, yy + 12, cw, 'SUBMITTED TO', toL, 1);
+    party(MID + 8, yy + 12, cw, 'SUBMITTED BY', byR, 1);
+    var ye = yy + 124;
+    text('DATE OF SUBMISSION', mid, ye + 6, 9.5, { bold: 1, color: C.acc, align: 'center' });
+    text(fmtDate(d.date), mid, ye + 23, 13, { align: 'center' });
+    rem(ye + 30);
+  };
+  /* Left Rail: tall colour rail, ruled label rows, ribbon party headings */
+  T.x6 = function () {
+    var RW = 40, X = RW + 38, w = R - X, y = 48;
+    rect(0, 0, RW, H, C.pri); rect(RW, 0, 6, H, C.acc);
+    var hx = X;
+    if (d.showLogo) { logo(X, y, 52, 54); hx = X + 66; }
+    hdr(hx, R, y + 24, 0, 16);
+    var ty = 190 + 12 * gs;
+    text(type, X, ty, fit(type, w, 36, 16, 1), { bold: 1, color: C.pri });
+    rect(X, ty + 14, w, 1.2, C.pri); rect(X, ty + 14, 70, 4, C.acc);
+    if (group) text('Group ' + group, X, ty + 40, 13, { bold: 1, color: C.acc });
+    var yy = stack(X, ty + (group ? 58 : 40), w, { inl: 128, sep: 1, gap: 12 });
+    var pw = (w - 24) / 2, y3 = yy + 14 * gs;
+    [[X, 'SUBMITTED TO', toL], [X + pw + 24, 'SUBMITTED BY', byR]].forEach(function (b) {
+      rect(b[0], y3, pw, 24, C.pri); text(b[1], b[0] + 10, base(y3 + 12, 11), 11, { bold: 1, color: WH });
+      b[2].forEach(function (s, i) { if (s) text(s, b[0] + 2, y3 + 46 + i * 19, fit(s, pw - 4, 11.5, 8, 0)); });
+    });
+    rem(y3 + 108);
+    rect(X, H - 70, w, 1.2, C.pri);
+    text('DATE OF SUBMISSION', X, base(H - 44, 12), 12, { bold: 1, color: C.pri });
+    text(fmtDate(d.date), R, base(H - 44, 14), 14, { bold: 1, align: 'right' });
+  };
+
   /* ---- Lab index matrix ---- */
   var cols = (Array.isArray(d.idxCols) && d.idxCols.length ? d.idxCols : ['Sl no', 'Date', 'Experiment Name', 'Page', 'Signature']).map(safeText);
   var nrows = Math.max(1, Math.min(30, parseInt(d.idxRows, 10) || 10));
@@ -1284,7 +1578,6 @@ function buildCover(d, paperKey, measure) {
     var rh = Math.max(16, Math.min(44, (H - 48 - y) / (nrows + 1))), tot = rh * (nrows + 1), cx = [x];
     cw.forEach(function (v, i) { cx.push(cx[i] + v); });
     if (o.head) rect(x, y, w, rh, o.head);
-    if (o.zebra) for (var r = 1; r <= nrows; r += 2) rect(x, y + rh * (r + 1) - 0, w, 0, TN);
     if (o.zebra) for (var z = 1; z <= nrows; z++) if (z % 2 === 0) rect(x, y + rh * z, w, rh, TN);
     cols.forEach(function (c, i) {
       text(c, (cx[i] + cx[i + 1]) / 2, base(y + rh / 2, 11), fit(c, cw[i] - 8, 11, 7, 1), { bold: 1, color: o.head ? WH : C.pri, align: 'center' });
@@ -1355,6 +1648,32 @@ function buildCover(d, paperKey, measure) {
   };
 
 
+  /* Index: left colour band, card info, zebra table */
+  T.i4 = function () {
+    var X = L + 14, w = R - X;
+    rect(0, 0, 24, H, C.pri); rect(24, 0, 4, H, C.acc);
+    var hx = X;
+    if (d.showLogo) { logo(X, 40, 50, 52.5); hx = X + 64; }
+    hdr(hx, R, 62, 0, 17);
+    rect(X, 108, w, 1.4, C.pri);
+    var y = info2(X, 126, w, 'card') + 30;
+    text('EXPERIMENT LIST', X, y, 20, { bold: 1, color: C.pri }); rect(X, y + 9, 56, 3.5, C.acc);
+    table(X, y + 28, w, { zebra: 1, head: C.pri });
+  };
+  /* Index: centred header, ribbon title, full grid table */
+  T.i5 = function () {
+    var mid = W / 2, y = 38;
+    rect(0, 0, W, 8, C.pri); rect(0, 8, W, 3, C.acc);
+    if (d.showLogo) { logo(mid - 24, y + 4, 48, 50); y += 62; } else y += 8;
+    text(uni, mid, y + 14, fit(uni, CW, 18, 10, 1), { bold: 1, color: C.pri, align: 'center' });
+    text(dep, mid, y + 33, fit(dep, CW, 11, 7.5, 1), { bold: 1, color: C.acc, align: 'center' });
+    var yy = info2(L, y + 56, CW, 'plain') + 26, bw = 250;
+    poly([[mid - bw / 2 - 16, yy - 4], [mid - bw / 2, yy - 4], [mid - bw / 2, yy + 28]], tint(C.pri, 0.35));
+    poly([[mid + bw / 2 + 16, yy - 4], [mid + bw / 2, yy - 4], [mid + bw / 2, yy + 28]], tint(C.pri, 0.35));
+    rect(mid - bw / 2, yy - 4, bw, 32, C.pri);
+    text('EXPERIMENT LIST', mid, base(yy + 12, 16), 16, { bold: 1, color: WH, align: 'center' });
+    table(L, yy + 44, CW, { grid: 1, head: C.acc });
+  };
   /* ---- Group project: members table, 1 to 4 members ---- */
   var gcnt = Math.max(1, Math.min(6, parseInt(d.grpCount, 10) || 4)), gm = [];
   for (var gi = 1; gi <= gcnt; gi++) gm.push([safeText(d['m' + gi + 'n']), safeText(d['m' + gi + 'i'])]);
@@ -1610,12 +1929,198 @@ function buildCover(d, paperKey, measure) {
     toL.forEach(function (s, i) { if (s) text(s, L, fy + 48 + i * 18, fit(s, CW, 11.5, 8, 0)); });
   };
 
+  /* Group: centred header, number-block member cards */
+  T.g8 = function () {
+    var mid = W / 2, y = 38;
+    rect(0, 0, W, 10, C.pri); rect(0, 10, W, 3, C.acc); rect(0, H - 10, W, 10, C.pri); rect(0, H - 13, W, 3, C.acc);
+    if (d.showLogo) { logo(mid - 27, y, 54, 56); y += 68; } else y += 8;
+    text(uni, mid, y + 14, fit(uni, CW, 18, 10, 1), { bold: 1, color: C.pri, align: 'center' });
+    text(dep, mid, y + 34, fit(dep, CW, 11.5, 7.5, 1), { bold: 1, color: C.acc, align: 'center' });
+    var ty = y + 84;
+    text(type, mid, ty, fit(type, CW, 32, 16, 1), { bold: 1, color: C.pri, align: 'center' });
+    rect(mid - 30, ty + 10, 60, 3, C.acc);
+    if (group) text('Group ' + group, mid, ty + 34, 13, { bold: 1, color: C.acc, align: 'center' });
+    var yy = infoBlock(L, ty + (group ? 48 : 30), CW, 1);
+    text('GROUP MEMBERS', mid, yy + 14, 12, { bold: 1, color: C.pri, align: 'center' });
+    yy += 28;
+    var gw = (CW - 14) / 2, ch = 50;
+    gm.forEach(function (m, k) {
+      var x = L + (k % 2) * (gw + 14), cy = yy + Math.floor(k / 2) * (ch + 10);
+      rect(x, cy, gw, ch, TN); rect(x, cy, 36, ch, C.pri);
+      text(String(k + 1), x + 18, base(cy + ch / 2, 15), 15, { bold: 1, color: WH, align: 'center' });
+      if (m[0]) text(m[0], x + 46, cy + 22, fit(m[0], gw - 54, 12.5, 7.5, 0));
+      if (m[1]) text(m[1], x + 46, cy + 39, fit(m[1], gw - 54, 10.5, 7, 0), { color: C.acc, bold: 1 });
+    });
+    yy += Math.ceil(gm.length / 2) * (ch + 10) + 8;
+    if (secSem) text(secSem, mid, yy + 10, 11.5, { align: 'center' });
+    var fy = Math.max(yy + 26, H - 150);
+    toBlk(L, fy, CW, 1);
+  };
+  /* Group: corner brackets, ruled member roster */
+  T.g9 = function () {
+    var mid = W / 2;
+    [[22, 22, 1, 1], [W - 22, 22, -1, 1], [22, H - 22, 1, -1], [W - 22, H - 22, -1, -1]].forEach(function (p) {
+      rect(Math.min(p[0], p[0] + p[2] * 46), p[1] - (p[3] < 0 ? 3 : 0), 46, 3, C.pri);
+      rect(p[0] - (p[2] < 0 ? 3 : 0), Math.min(p[1], p[1] + p[3] * 46), 3, 46, C.pri);
+      rect(Math.min(p[0] + p[2] * 8, p[0] + p[2] * 30), p[1] + p[3] * 8 - (p[3] < 0 ? 1.5 : 0), 22, 1.5, C.acc);
+    });
+    var y = 52;
+    if (d.showLogo) { logo(mid - 29, y, 58, 60); y += 76; } else y += 8;
+    text(uni, mid, y + 14, fit(uni, CW - 30, 18, 10, 1), { bold: 1, color: C.pri, align: 'center' });
+    text(dep, mid, y + 34, fit(dep, CW - 30, 11.5, 7.5, 1), { bold: 1, color: C.acc, align: 'center' });
+    var ty = y + 86;
+    text(type, mid, ty, fit(type, CW - 30, 32, 16, 1), { bold: 1, color: C.pri, align: 'center' });
+    if (group) text('Group ' + group, mid, ty + 26, 13, { bold: 1, color: C.acc, align: 'center' });
+    var yy = stack(L + 10, ty + (group ? 44 : 30), CW - 20, { inl: 118, sep: 1, gap: 10 });
+    if (dtTxt) { text('SUBMISSION DATE', L + 10, yy + 12, 10.5, { bold: 1, color: C.pri }); text(dtTxt, L + 128, yy + 12, 13); yy += 30; }
+    text('GROUP MEMBERS', L + 10, yy + 22, 12, { bold: 1, color: C.pri }); rect(L + 10, yy + 29, 40, 2.5, C.acc);
+    yy += 40;
+    var step = gm.length > 4 ? 30 : 34;
+    gm.forEach(function (m, k) {
+      var cy = yy + k * step + step / 2;
+      text(String(k + 1) + '.', L + 14, base(cy, 12), 12, { bold: 1, color: C.acc });
+      if (m[0]) text(m[0], L + 38, base(cy, 12.5), fit(m[0], CW - 190, 12.5, 7.5, 0));
+      if (m[1]) text(m[1], R - 10, base(cy, 12), fit(m[1], 130, 12, 7.5, 1), { align: 'right', bold: 1, color: C.pri });
+      hline(L + 10, R - 10, cy + step / 2, C.sep);
+    });
+    yy += gm.length * step + 14;
+    if (secSem) text(secSem, L + 10, yy + 10, 11.5);
+    var fy = Math.max(yy + 28, H - 150);
+    toBlk(L + 10, fy, CW - 20, 0);
+  };
+
+  var qrInfo = null;
   (T[d.tpl] || (grp ? T.g1 : T.l1))();
+  /* ---- extras: print mode, text size, language, border, signatures, QR, watermark ---- */
+  (function () {
+    if (d.printReady) prims = prims.filter(function (p) { return !(p.t === 'rect' && p.x <= 1 && p.y <= 1 && p.w >= W - 2 && p.h >= H - 2); });
+    var fs = (parseInt(d.fscale, 10) || 100) / 100;
+    var bn = d.lang === 'bn';
+    if (bn) {
+      var BN = { 'COURSE TITLE': 'কোর্সের শিরোনাম', 'COURSE CODE': 'কোর্স কোড', 'COURSE NAME': 'কোর্সের নাম', 'EXPERIMENT NO': 'এক্সপেরিমেন্ট নং', 'ASSIGNMENT NO': 'অ্যাসাইনমেন্ট নং',
+        'EXPERIMENT TITLE': 'এক্সপেরিমেন্টের শিরোনাম', 'ASSIGNMENT TITLE': 'অ্যাসাইনমেন্টের শিরোনাম', 'PROJECT TITLE': 'প্রজেক্টের শিরোনাম', 'SUBMITTED TO': 'প্রাপক', 'SUBMITTED BY': 'জমাদাতা',
+        'DATE OF SUBMISSION': 'জমাদানের তারিখ', 'SUBMISSION DATE': 'জমাদানের তারিখ', 'GROUP MEMBERS': 'দলের সদস্যবৃন্দ', 'EXPERIMENT LIST': 'এক্সপেরিমেন্টের তালিকা', 'REMARKS :': 'মন্তব্য :',
+        'LAB REPORT': 'ল্যাব রিপোর্ট', 'ASSIGNMENT': 'অ্যাসাইনমেন্ট', 'GROUP PROJECT': 'গ্রুপ প্রজেক্ট', 'EXPERIMENT DETAILS': 'এক্সপেরিমেন্টের বিবরণ', 'ASSIGNMENT DETAILS': 'অ্যাসাইনমেন্টের বিবরণ',
+        'SL': 'ক্রম', 'NAME': 'নাম', 'ID': 'আইডি', 'GROUP': 'গ্রুপ' };
+      var BNP = [['Name: ', 'নাম: '], ['ID: ', 'আইডি: '], ['Semester: ', 'সেমিস্টার: '], ['Section: ', 'সেকশন: '], ['Group: ', 'গ্রুপ: '], ['Group ', 'গ্রুপ '], ['GROUP ', 'গ্রুপ '], ['Date of Submission:  ', 'জমাদানের তারিখ: ']];
+      var DG = '০১২৩৪৫৬৭৮৯';
+      prims.forEach(function (p) {
+        if (p.t !== 'text') return;
+        var o = p.str, n = BN[o];
+        if (!n) for (var i = 0; i < BNP.length; i++) if (o.indexOf(BNP[i][0]) === 0) { n = BNP[i][1] + o.slice(BNP[i][0].length); break; }
+        if (!n) n = o;
+        n = n.replace(/\d{2}\/\d{2}\/\d{4}/g, function (x) { return x.replace(/\d/g, function (c) { return DG.charAt(+c); }); });
+        if (n !== o) {
+          var w0 = measure(o, p.size, p.bold), w1 = measure(n, p.size, p.bold);
+          if (w0 > 0 && w1 > w0 * 1.12 && /^[A-Z :.&]+$/.test(o)) p.size = Math.max(6, p.size * w0 * 1.12 / w1);
+          p.str = n;
+        }
+      });
+    }
+    var cased = function (t, m) {
+      if (m === 'upper') return t.toUpperCase();
+      if (m === 'lower') return t.toLowerCase();
+      if (m === 'title') return t.toLowerCase().replace(/(^|[\s\-(\/])([a-z\u00e0-\u00ff])/g, function (m, a, b) { return a + b.toUpperCase(); });
+      return t;
+    };
+    var fg = (d.fgrp && typeof d.fgrp === 'object') ? d.fgrp : {};
+    var anyG = Object.keys(fg).some(function (k) { var v = fg[k]; return v && (v.b || v.i || v.u || (v.c && v.c !== 'normal')); });
+    var styled = fs !== 1 || d.fbold || d.fitalic || d.funder || (d.fcase && d.fcase !== 'normal') || anyG;
+    if (styled) prims.forEach(function (p) {
+      if (p.t !== 'text' || p.alpha) return;
+      var gs = (p.g && fg[p.g]) || {}, cm = (gs.c && gs.c !== 'normal') ? gs.c : d.fcase;
+      p.size *= fs;
+      if (d.fbold || gs.b) p.bold = 1;
+      if (d.fitalic || gs.i) p.italic = 1;
+      if (d.funder || gs.u) p.underline = 1;
+      if (cm && cm !== 'normal' && !/^[\u0980-\u09ff\s\d:.\/-]*$/.test(p.str)) p.str = cased(p.str, cm);
+      if (!p.rot) {
+        var w = measure(p.str, p.size, p.bold), lo = 14, hi = W - 14, avail = p.align === 'center' ? 2 * Math.min(p.x - lo, hi - p.x) : p.align === 'right' ? p.x - lo : hi - p.x;
+        if (w > avail && avail > 20) p.size *= avail / w;
+      }
+    });
+    if (d.thumb) return;
+    var bd = d.border;
+    if (bd === 'thin') frame(16, 16, W - 32, H - 32, 1.1, C.pri);
+    else if (bd === 'thick') frame(14, 14, W - 28, H - 28, 3.4, C.pri);
+    else if (bd === 'double') { frame(14, 14, W - 28, H - 28, 2.4, C.pri); frame(21, 21, W - 42, H - 42, 0.8, C.acc); }
+    else if (bd === 'dashed') {
+      var x0 = 16, y0 = 16, bw0 = W - 32, bh0 = H - 32, dl = 9, gp = 6, t = 1.3, x, y, l;
+      for (x = x0; x < x0 + bw0; x += dl + gp) { l = Math.min(dl, x0 + bw0 - x); rect(x, y0, l, t, C.pri); rect(x, y0 + bh0 - t, l, t, C.pri); }
+      for (y = y0; y < y0 + bh0; y += dl + gp) { l = Math.min(dl, y0 + bh0 - y); rect(x0, y, t, l, C.pri); rect(x0 + bw0 - t, y, t, l, C.pri); }
+    } else if (bd === 'corners') {
+      [[16, 16, 1, 1], [W - 16, 16, -1, 1], [16, H - 16, 1, -1], [W - 16, H - 16, -1, -1]].forEach(function (c) {
+        var cx = c[0], cy = c[1], sx = c[2], sy = c[3], cl = 42, ct = 2.6;
+        rect(sx > 0 ? cx : cx - cl, sy > 0 ? cy : cy - ct, cl, ct, C.pri); rect(sx > 0 ? cx : cx - ct, sy > 0 ? cy : cy - cl, ct, cl, C.pri);
+        rect(sx > 0 ? cx + 7 : cx - 13, sy > 0 ? cy + 7 : cy - 13, 6, 6, C.acc);
+      });
+    }
+    if (d.showSig) {
+      var sy2 = H - 80, sw = 118;
+      [[L, 'sigS', bn ? 'শিক্ষার্থীর স্বাক্ষর' : "Student's signature"], [R - sw, 'sigT', bn ? 'শিক্ষকের স্বাক্ষর' : "Teacher's signature"]].forEach(function (g) {
+        if (d[g[1]]) {
+          var ar = extraAR[g[1]] || 0.4, w = sw - 14, h = w * ar;
+          if (h > 40) { h = 40; w = h / ar; }
+          prims.push({ t: 'img', k: g[1], x: g[0] + (sw - w) / 2, y: sy2 - h - 2, w: w, h: h });
+        }
+        hline(g[0], g[0] + sw, sy2, C.ink);
+        text(g[2], g[0] + sw / 2, sy2 + 12, 9, { align: 'center', color: C.ink });
+      });
+    }
+    var qt = qrNorm(d.qrText);
+    if (d.showQr && qt && typeof qrcode === 'function') {
+      try {
+        var q = qrcode(0, 'M'); q.addData(qt.slice(0, 300)); q.make();
+        var qn = q.getModuleCount(), qs = { sm: 42, md: 52, lg: 72 }[d.qrSize] || 52, ms = qs / qn;
+        var qpos = d.showSig ? 'center' : (d.qrPos || 'center');
+        var qx = qpos === 'left' ? L + 4 : qpos === 'right' ? R - qs - 4 : W / 2 - qs / 2, qy = H - 66 - qs - 6;
+        rect(qx - 4, qy - 4, qs + 8, qs + 8, '#ffffff');
+        for (var qr = 0; qr < qn; qr++) {
+          var c0 = -1;
+          for (var qc = 0; qc <= qn; qc++) {
+            var on = qc < qn && q.isDark(qr, qc);
+            if (on && c0 < 0) c0 = qc;
+            if (!on && c0 >= 0) { rect(qx + c0 * ms, qy + qr * ms, (qc - c0) * ms + 0.3, ms + 0.3, '#000000'); c0 = -1; }
+          }
+        }
+        var ql = Array.from(String(d.qrLabel == null ? 'Scan' : d.qrLabel)).slice(0, 24).join('').trim();
+        if (ql) text(bn && ql === 'Scan' ? 'স্ক্যান করুন' : ql, qx + qs / 2, qy + qs + 14, 8, { align: 'center', color: C.ink });
+        qrInfo = /^https?:\/\//i.test(qt) ? { x: qx - 4, y: qy - 4, w: qs + 8, h: qs + 8, url: qt } : null;
+      } catch (e) {}
+    }
+    var wm = tidy(d.wmText).slice(0, 24);
+    if (wm) {
+      var w100 = measure(wm, 100, 1) || 1, wsz = Math.min(150, W * 0.82 * 100 / w100);
+      prims.push({ t: 'text', str: wm, x: W / 2, y: H / 2 + wsz * 0.3, size: wsz, bold: true, color: C.pri, align: 'center', rot: -35, alpha: 0.08 });
+    }
+    if (d.printSafe) {
+      var ss = 0.93, mx = W / 2, my = H / 2;
+      var mp = function (q) { return [mx + (q[0] - mx) * ss, my + (q[1] - my) * ss]; };
+      prims.forEach(function (p) {
+        if (p.t === 'poly') p.pts = p.pts.map(mp);
+        else {
+          var o = mp([p.x, p.y]); p.x = o[0]; p.y = o[1];
+          if (p.t === 'rect' || p.t === 'img') { p.w *= ss; p.h *= ss; }
+          else if (p.t === 'disc') p.r *= ss;
+          else p.size *= ss;
+        }
+      });
+      if (qrInfo) { var qo = mp([qrInfo.x, qrInfo.y]); qrInfo.x = qo[0]; qrInfo.y = qo[1]; qrInfo.w *= ss; qrInfo.h *= ss; }
+    }
+    if (d.printBW) {
+      var gr = function (h) {
+        if (!/^#[0-9a-f]{6}$/i.test(h || '')) return h;
+        var l = Math.round(0.299 * parseInt(h.substr(1, 2), 16) + 0.587 * parseInt(h.substr(3, 2), 16) + 0.114 * parseInt(h.substr(5, 2), 16)), x = (l < 16 ? '0' : '') + l.toString(16);
+        return '#' + x + x + x;
+      };
+      prims.forEach(function (p) { if (p.fill) p.fill = gr(p.fill); if (p.color) p.color = gr(p.color); });
+    }
+  })();
   if (K !== 1) prims.forEach(function (p) {
     ['x', 'y', 'w', 'h', 'r', 'size'].forEach(function (k) { if (typeof p[k] === 'number') p[k] *= K; });
     if (p.pts) p.pts = p.pts.map(function (q) { return [q[0] * K, q[1] * K]; });
   });
-  return { W: P[0], H: P[1], prims: prims };
+  return { W: P[0], H: P[1], prims: prims, qr: qrInfo };
 }
 
 
@@ -1641,10 +2146,10 @@ function buildCover(d, paperKey, measure) {
     ['White & Forest Green', '#1e5c3a', '#2f8f57', '#12201a', '#1e5c3a', '#ffffff']
   ];
   var TPLS = {
-    lab: [['l1', 'Classic Table'], ['l2', 'Header Band'], ['l3', 'Double Frame'], ['l4', 'Side Stripe'], ['l5', 'Tinted Sheet'], ['x1', 'Modern'], ['x2', 'Classic'], ['x3', 'Minimal']],
-    asg: [['a1', 'Side Panel'], ['a2', 'Minimal Rule'], ['a3', 'Title Card'], ['a4', 'Footer Band'], ['a5', 'Boxed Sections'], ['x1', 'Modern'], ['x2', 'Classic'], ['x3', 'Minimal']],
-    idx: [['i1', 'Classic Grid'], ['i2', 'Header Grid'], ['i3', 'Minimal Frame']],
-    grp: [['g1', 'Member Table'], ['g2', 'Header Band'], ['g3', 'Minimal Frame'], ['g4', 'Side Panel'], ['g5', 'Member Cards'], ['g6', 'Center Banner'], ['g7', 'Timeline']]
+    lab: [['l1', 'Classic Table'], ['l2', 'Header Band'], ['l3', 'Double Frame'], ['l4', 'Side Stripe'], ['l5', 'Tinted Sheet'], ['x1', 'Modern'], ['x2', 'Classic'], ['x3', 'Minimal'], ['x4', 'Split Banner'], ['x5', 'Circle Seal'], ['x6', 'Left Rail']],
+    asg: [['a1', 'Side Panel'], ['a2', 'Minimal Rule'], ['a3', 'Title Card'], ['a4', 'Footer Band'], ['a5', 'Boxed Sections'], ['x1', 'Modern'], ['x2', 'Classic'], ['x3', 'Minimal'], ['x4', 'Split Banner'], ['x5', 'Circle Seal'], ['x6', 'Left Rail']],
+    idx: [['i1', 'Classic Grid'], ['i2', 'Header Grid'], ['i3', 'Minimal Frame'], ['i4', 'Left Band'], ['i5', 'Ribbon Title']],
+    grp: [['g1', 'Member Table'], ['g2', 'Header Band'], ['g3', 'Minimal Frame'], ['g4', 'Side Panel'], ['g5', 'Member Cards'], ['g6', 'Center Banner'], ['g7', 'Timeline'], ['g8', 'Number Cards'], ['g9', 'Corner Roster']]
   };
   var DEFAULTS = {
     mode: 'lab', tplLab: 'l1', tplAsg: 'a1', tplIdx: 'i1', tplGrp: 'g1', grpCount: '4', m1n: '', m1i: '', m2n: '', m2i: '', m3n: '', m3i: '', m4n: '', m4i: '', m5n: '', m5i: '', m6n: '', m6i: '',
@@ -1654,7 +2159,8 @@ function buildCover(d, paperKey, measure) {
     toName: '', toDesig: '', toDept: DEPTS[0], toInst: 'IIUC',
     byName: '', byId: '', bySem: '', bySec: '',
     date: '', showRemarks: true, paper: 'a4', coverFont: 'Caladea', theme: (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'cream', themeSet: false, leaves: false,
-    cPri: PALS[0][1], cAcc: PALS[0][2], cInk: PALS[0][3], cLn: PALS[0][4], cBg: '#ffffff'
+    cPri: PALS[0][1], cAcc: PALS[0][2], cInk: PALS[0][3], cLn: PALS[0][4], cBg: '#ffffff',
+    lang: 'en', fscale: '100', border: 'none', wmText: '', showSig: false, sigS: '', sigT: '', showQr: false, qrText: '', qrSize: 'md', qrPos: 'center', qrLabel: 'Scan', fbold: false, fitalic: false, funder: false, fcase: 'normal', fgrp: {}, fname: '', printReady: false, printBW: false, printSafe: false
   };
   var PERSIST = Object.keys(DEFAULTS).filter(function (k) { return k !== 'date'; });
 
@@ -1679,7 +2185,7 @@ function buildCover(d, paperKey, measure) {
   var thumbs = [];
   var TK = { lab: 'tplLab', asg: 'tplAsg', idx: 'tplIdx', grp: 'tplGrp' };
   cleanState();
-  function cur() { return Object.assign({}, state, { tpl: state[TK[state.mode]] }); }
+  function cur() { var o = Object.assign({}, state, { tpl: state[TK[state.mode]] }); if (!o.sigS && profSig) o.sigS = profSig; return o; }
 
   function buildCols() {
     var box = $('#cols'); box.innerHTML = '';
@@ -1749,7 +2255,7 @@ function buildCover(d, paperKey, measure) {
       if (el.type === 'checkbox') el.checked = !!state[k]; else el.value = state[k] == null ? '' : state[k];
     });
     document.querySelectorAll('[data-paper]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-paper') === state.paper)); });
-    syncBgs(); $('#idxRows').value = state.idxRows; $('#paperFormat').value = state.paper; $('#paperQuick').value = state.paper; $('#paperMini').value = state.paper; $('#coverFont').value = state.coverFont || 'Caladea'; buildCols(); buildRows(); syncUI();
+    syncBgs(); $('#idxRows').value = state.idxRows; $('#paperFormat').value = state.paper; $('#paperQuick').value = state.paper; $('#paperMini').value = state.paper; $('#coverFont').value = state.coverFont || 'Caladea'; buildCols(); buildRows(); syncUI(); extrasSync();
   }
 
   /* ---------- fonts, logo, measuring ---------- */
@@ -1793,19 +2299,38 @@ function buildCover(d, paperKey, measure) {
   var PV = { main: { cv: canvas, wrap: $('#sheetWrap') }, mini: { cv: $('#paper2'), wrap: $('#sheetWrap2') } };
   var zoom = { main: 1, mini: 1 }, ZS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 4];
   function isWide() { return window.matchMedia('(min-width: 900px)').matches; }
+  var grayCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+  function grayImg(im) {
+    var g = grayCache && grayCache.get(im); if (g) return g;
+    try {
+      var c = document.createElement('canvas'); c.width = im.naturalWidth || im.width; c.height = im.naturalHeight || im.height;
+      var x = c.getContext('2d'); x.drawImage(im, 0, 0);
+      var d = x.getImageData(0, 0, c.width, c.height), a = d.data;
+      for (var i = 0; i < a.length; i += 4) { var l = a[i] * 0.299 + a[i + 1] * 0.587 + a[i + 2] * 0.114; a[i] = a[i + 1] = a[i + 2] = l; }
+      x.putImageData(d, 0, 0); if (grayCache) grayCache.set(im, c); return c;
+    } catch (e) { return im; }
+  }
   function drawTo(cv, layout, cssW, fixedDpr) {
     var c = cv.getContext('2d'), cssH = Math.round(cssW * layout.H / layout.W), dpr = fixedDpr || Math.min(window.devicePixelRatio || 1, 3);
     cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px';
     cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssH * dpr);
     c.setTransform(cv.width / layout.W, 0, 0, cv.height / layout.H, 0, 0);
-    c.fillStyle = /^#[0-9a-f]{6}$/i.test(state.cBg || '') ? state.cBg : '#ffffff'; c.fillRect(0, 0, layout.W, layout.H);
+    c.fillStyle = state.printReady ? '#ffffff' : (/^#[0-9a-f]{6}$/i.test(state.cBg || '') ? state.cBg : '#ffffff'); c.fillRect(0, 0, layout.W, layout.H);
     c.textBaseline = 'alphabetic';
     layout.prims.forEach(function (p) {
       if (p.t === 'rect') { c.fillStyle = p.fill; c.fillRect(p.x, p.y, p.w, p.h); }
-      else if (p.t === 'img') { if (logoImg) c.drawImage(logoImg, p.x, p.y, p.w, p.h); }
+      else if (p.t === 'img') { var im = p.k ? extraImg[p.k] : logoImg; if (im && state.printBW) im = grayImg(im); if (im) c.drawImage(im, p.x, p.y, p.w, p.h); }
       else if (p.t === 'poly') { c.fillStyle = p.fill; c.beginPath(); p.pts.forEach(function (q, i) { if (i) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.closePath(); c.fill(); }
       else if (p.t === 'disc') { c.fillStyle = p.fill; c.beginPath(); c.arc(p.x, p.y, p.r, 0, Math.PI * 2); c.fill(); }
-      else { c.font = (p.bold ? '700 ' : '400 ') + p.size + 'px ' + (state.coverFont || 'Caladea') + ', "Noto Sans Bengali", sans-serif'; c.fillStyle = p.color; c.textAlign = p.align; c.fillText(p.str, p.x, p.y); }
+      else {
+        c.font = (p.italic ? 'italic ' : '') + (p.bold ? '700 ' : '400 ') + p.size + 'px ' + (state.coverFont || 'Caladea') + ', "Noto Sans Bengali", sans-serif'; c.fillStyle = p.color; c.textAlign = p.align;
+        if (p.rot || p.alpha) { c.save(); c.globalAlpha = p.alpha || 1; c.translate(p.x, p.y); c.rotate((p.rot || 0) * Math.PI / 180); c.fillText(p.str, 0, 0); c.restore(); }
+        else c.fillText(p.str, p.x, p.y);
+        if (p.underline && !p.rot) {
+          var uw = c.measureText(p.str).width, ux = p.align === 'center' ? p.x - uw / 2 : p.align === 'right' ? p.x - uw : p.x;
+          c.fillRect(ux, p.y + p.size * 0.12, uw, Math.max(0.6, p.size * 0.065));
+        }
+      }
     });
   }
   var DEMO = { m1n: 'Member One', m1i: 'C000001', m2n: 'Member Two', m2i: 'C000002', m3n: 'Member Three', m3i: 'C000003', m4n: 'Member Four', m4i: 'C000004', m5n: 'Member Five', m5i: 'C000005', m6n: 'Member Six', m6i: 'C000006', grpCount: '4', group: 'A', courseTitle: 'Physics', courseCode: 'PHY-101', expNo: '05', expTitle: 'Sample title of the work', toName: 'Mr. Name Surname', toDesig: 'Lecturer', toInst: 'University', byName: 'Student Name', byId: 'C000000', bySem: 'Second', bySec: 'A', date: '2026-01-01' };
@@ -1822,7 +2347,7 @@ function buildCover(d, paperKey, measure) {
     });
   }
   function render() {
-    raf = 0; applyLeaves();
+    raf = 0; applyLeaves(); syncImgs();
     if (!fontsReady) return;
     var layout = buildCover(cur(), state.paper, measure);
     lastLayout = layout;
@@ -1831,7 +2356,7 @@ function buildCover(d, paperKey, measure) {
     $('#pvTitle').textContent = 'Live ' + (PN[state.paper] || 'A4') + ' Document Preview';
     $('#pvBadge').textContent = { lab: 'Lab Report Cover', asg: 'Assignment Cover', idx: 'Lab Index Cover', grp: 'Group Project Cover' }[state.mode] || 'Cover';
     paintPreviews(layout);
-    thumbs.forEach(function (t) { drawTo(t.cv, buildCover(Object.assign(cur(), DEMO, { tpl: t.id }), state.paper, measure), 96); });
+    thumbs.forEach(function (t) { drawTo(t.cv, buildCover(Object.assign(cur(), DEMO, { tpl: t.id, thumb: 1 }), state.paper, measure), 96); });
   }
   function schedule() { if (!raf) raf = requestAnimationFrame(render); }
 
@@ -1840,14 +2365,20 @@ function buildCover(d, paperKey, measure) {
   function makePdf(layout) {
     var doc = new window.jspdf.jsPDF({ unit: 'pt', format: [layout.W, layout.H], compress: true });
     var cv = document.createElement('canvas');
-    drawTo(cv, layout, Math.round(layout.W * 3), 1);
+    drawTo(cv, layout, Math.round(layout.W * expScale(layout, state.printReady ? 4.1667 : 3)), 1);
     var data = cv.toDataURL('image/jpeg', 0.96);
     doc.addImage(data, 'JPEG', 0, 0, layout.W, layout.H, undefined, 'FAST');
+    if (layout.qr) { try { doc.link(layout.qr.x, layout.qr.y, layout.qr.w, layout.qr.h, { url: layout.qr.url }); } catch (e) {} }
     doc.setProperties({ title: (state.reportType || 'Cover') + ' - ' + (state.courseCode || ''), author: state.byName || '' });
     return doc.output('arraybuffer');
   }
   function slug(s) { return String(s || '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+  function customName() {
+    var n = String(state.fname || '').replace(/[\u0000-\u001f\\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\.(pdf|jpe?g|png|webp|docx|svg)$/i, '').replace(/^\.+|[. ]+$/g, '');
+    return n.slice(0, 80).trim();
+  }
   function fileName() {
+    var cn = customName(); if (cn) return cn;
     var asg = state.mode === 'asg', parts = state.mode === 'grp' ? [slug(state.courseCode) || 'Group', 'Project' + (slug(state.group) ? '-' + slug(state.group) : '')] : state.mode === 'idx' ? [slug(state.courseCode) || 'Lab', 'Index'] : [slug(state.courseCode) || (asg ? 'Assignment' : 'Lab'), (asg ? 'Asg-' : 'Exp-') + (slug(state.expNo) || '0')];
     var id = state.mode === 'grp' ? '' : slug(state.byId); if (id) parts.push(id);
     return parts.join('_');
@@ -1878,7 +2409,6 @@ function buildCover(d, paperKey, measure) {
   document.addEventListener('input', function (e) {
     var k = e.target && e.target.getAttribute && e.target.getAttribute('data-k');
     if (!k) return;
-    if (k === 'bySem' && e.target.value.length > 12) e.target.value = e.target.value.slice(0, 12);
     state[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     if (k === 'cBg') syncBgs();
     if (k === 'grpCount') syncUI();
@@ -2019,7 +2549,7 @@ function buildCover(d, paperKey, measure) {
   }
   function makeJpg(layout) {
     return new Promise(function (res, rej) {
-      var cv = document.createElement('canvas'); drawTo(cv, layout, Math.round(layout.W * 4), 1);
+      var cv = document.createElement('canvas'); drawTo(cv, layout, Math.round(layout.W * expScale(layout, state.printReady ? 4.1667 : 4)), 1);
       cv.toBlob(function (b) { if (b) b.arrayBuffer().then(res); else rej(new Error('jpg')); }, 'image/jpeg', 0.93);
     });
   }
@@ -2030,19 +2560,26 @@ function buildCover(d, paperKey, measure) {
     b.innerHTML = '<svg class="tick" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
     clearTimeout(b._t); b._t = setTimeout(function () { b.classList.remove('ticked'); b.textContent = b.getAttribute('data-l'); }, 1800);
   }
+  var FMT = { pdf: ['pdf', 'application/pdf', 'PDF'], jpg: ['jpg', 'image/jpeg', 'JPG'], png: ['png', 'image/png', 'PNG'], webp: ['webp', 'image/webp', 'WebP'],
+    docx: ['docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'Word'], svg: ['svg', 'image/svg+xml', 'SVG'] };
   async function saveFile(kind, btn) {
     if (busy) return;
     if (kind === 'pdf' && !window.jspdf) { say('The PDF library failed to load. Check your connection and reload the page.', true); return; }
+    if (kind === 'docx' && !window.JSZip) { say('The Word export library failed to load. Check your connection and reload the page.', true); return; }
     if (!fontsReady) { say('Fonts are still loading. Try again in a moment.', true); return; }
     busy = true;
     try {
-      var dl = await getDownloads(), layout = buildCover(cur(), state.paper, measure);
-      var name = fileName() + (kind === 'pdf' ? '.pdf' : '.jpg');
-      var data = kind === 'pdf' ? await withAttach(makePdf(layout)) : await makeJpg(layout);
+      var layout = buildCover(cur(), state.paper, measure);
+      var dl = await getDownloads(), f = FMT[kind] || FMT.pdf, name = fileName() + '.' + f[0], data;
+      if (kind === 'pdf') data = await withAttach(makePdf(layout));
+      else if (kind === 'jpg') data = await makeJpg(layout);
+      else if (kind === 'png' || kind === 'webp') data = await makeImg(layout, f[1]);
+      else if (kind === 'docx') data = await makeDocx(layout);
+      else data = new TextEncoder().encode(makeSvg(layout)).buffer;
       if (dl) await dl.save({ filename: name, data: data });
-      else if (!window.claude) browserDownload(name, data, kind === 'pdf' ? 'application/pdf' : 'image/jpeg');
-      else { say('Downloads are not available in this view. Open the page on claude.ai and try again.', true); return; }
-      say((kind === 'pdf' ? 'PDF' : 'JPG') + ' saved: ' + name); tick(btn);
+      else if (!window.claude) browserDownload(name, data, f[1]);
+      else { say('Downloads are blocked in this view. Open the published page (with downloads allowed) and try again.', true); return; }
+      say(f[2] + ' saved: ' + name); tick(btn);
     } catch (e) {
       if (e && e.code === 'declined') say('Download cancelled.');
       else say('Could not create the file' + (e && (e.code || e.message) ? ' (' + (e.code || e.message) + ')' : '') + '.', true);
@@ -2050,8 +2587,6 @@ function buildCover(d, paperKey, measure) {
   }
   $('#pdfForm').addEventListener('click', function () { saveFile('pdf', this); });
   $('#pdfPrev').addEventListener('click', function () { saveFile('pdf', this); });
-  $('#jpgForm').addEventListener('click', function () { saveFile('jpg', this); });
-  $('#jpgPrev').addEventListener('click', function () { saveFile('jpg', this); });
   var THEME_HINTS = {
     light: 'Cool light colors.',
     cream: 'Soft warm cream colors, easy on the eyes.',
@@ -2079,49 +2614,9 @@ function buildCover(d, paperKey, measure) {
     $(openId).addEventListener('click', function () { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); });
     dlg.addEventListener('click', function (e) { if (e.target === dlg || (e.target.hasAttribute && e.target.hasAttribute('data-close'))) dlg.close(); });
   }
-  /* Template gallery: when it hits its top or bottom, the same swipe or wheel moves the whole page. */
-  (function () {
-    var el = $('#tpls'); if (!el) return;
-    function scroller() {
-      for (var n = el.parentElement; n && n !== document.body; n = n.parentElement) {
-        var oy = getComputedStyle(n).overflowY;
-        if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 1) return n;
-      }
-      return document.scrollingElement || document.documentElement;
-    }
-    function edge(dy) {
-      if (el.scrollHeight <= el.clientHeight + 1) return true;
-      return (dy > 0 && el.scrollTop + el.clientHeight >= el.scrollHeight - 1) || (dy < 0 && el.scrollTop <= 0);
-    }
-    var last = 0, vel = 0, lt = 0, chained = false, raf = 0, sc = null;
-    el.addEventListener('touchstart', function (e) {
-      cancelAnimationFrame(raf);
-      if (e.touches.length !== 1) return;
-      last = e.touches[0].clientY; lt = e.timeStamp; vel = 0; chained = false; sc = scroller();
-    }, { passive: true });
-    el.addEventListener('touchmove', function (e) {
-      if (e.touches.length !== 1 || !sc) return;
-      var y = e.touches[0].clientY, dy = last - y; last = y;
-      if (dy && edge(dy)) {
-        if (e.cancelable) e.preventDefault();
-        sc.scrollTop += dy;
-        var dt = Math.max(1, e.timeStamp - lt); vel = dy / dt; lt = e.timeStamp; chained = true;
-      } else { vel = 0; }
-    }, { passive: false });
-    el.addEventListener('touchend', function () {
-      if (!chained || !sc || Math.abs(vel) < 0.15) return;
-      var v = vel * 16;
-      (function step() { sc.scrollTop += v; v *= 0.95; if (Math.abs(v) > 0.4) raf = requestAnimationFrame(step); })();
-    }, { passive: true });
-    el.addEventListener('wheel', function (e) {
-      if (!e.deltaY || !edge(e.deltaY)) return;
-      var sc2 = scroller(); e.preventDefault(); sc2.scrollTop += e.deltaY;
-    }, { passive: false });
-  })();
-
   (function () {
     var btn = $('#menuBtn'), dr = $('#drawer'), scrim = $('#drawerScrim'), ttl = $('#drTitle');
-    var DLGS = ['dlgTheme', 'dlgFeatures', 'dlgSettings', 'dlgGuide', 'dlgAbout'];
+    var DLGS = ['dlgProfile', 'dlgTheme', 'dlgFeatures', 'dlgSettings', 'dlgGuide', 'dlgAbout'];
     var cur = { l: 0 }, stk = [{ l: 0 }], useHist = true;
     function render(st) {
       st = st || { l: 0 }; var l = st.l, was = dr.classList.contains('open'); cur = st;
@@ -2186,15 +2681,25 @@ function buildCover(d, paperKey, measure) {
   function getList(key){ try { var v=JSON.parse(localStorage.getItem(key)||'[]'); return Array.isArray(v)?v:[]; } catch(e){return [];} }
   function setList(key,v){ try{localStorage.setItem(key,JSON.stringify(v));return true;}catch(e){return false;} }
   var COVER_KEY='groot-local-covers', DESIGN_KEY='groot-local-templates';
-  var DESIGN_FIELDS=['mode','tplLab','tplAsg','tplIdx','tplGrp','paper','coverFont','cPri','cAcc','cInk','cLn','cBg','showLogo','showRemarks'];
+  var DESIGN_FIELDS=['mode','tplLab','tplAsg','tplIdx','tplGrp','paper','coverFont','cPri','cAcc','cInk','cLn','cBg','showLogo','showRemarks','border','fscale','fbold','fitalic','funder','fcase','fgrp'];
   function cleanState(){
     var HEX=/^#[0-9a-f]{6}$/i;
     ['lab','asg','idx','grp'].forEach(function(m){
       var k=TK[m]; if(!TPLS[m].some(function(t){return t[0]===state[k];})) state[k]=DEFAULTS[k];
     });
     if(!TPLS[state.mode]) state.mode=DEFAULTS.mode;
-    state.bySem=String(state.bySem||'').slice(0,12);
+    state.bySem=cut12(state.bySem);
     ['cPri','cAcc','cInk','cLn','cBg'].forEach(function(k){ if(!HEX.test(state[k]||'')) state[k]=DEFAULTS[k]; });
+    if(['en','bn'].indexOf(state.lang)<0) state.lang='en';
+    if(['none','thin','thick','double','dashed','corners'].indexOf(state.border)<0) state.border='none';
+    var fsn=parseInt(state.fscale,10); state.fscale=String(Math.max(70,Math.min(130,isNaN(fsn)?100:fsn)));
+    if(['normal','upper','lower','title'].indexOf(state.fcase)<0) state.fcase='normal';
+    var fgc={}; ['head','title','label','course','to','by'].forEach(function(g){ var v=state.fgrp&&typeof state.fgrp==='object'?state.fgrp[g]:null; if(v&&typeof v==='object'&&(v.b||v.i||v.u||(v.c&&v.c!=='normal'))) fgc[g]={b:v.b?1:0,i:v.i?1:0,u:v.u?1:0,c:['upper','lower','title'].indexOf(v.c)>=0?v.c:'normal'}; });
+    state.fgrp=fgc; state.fname=String(state.fname||'').slice(0,80);
+    if(['sm','md','lg'].indexOf(state.qrSize)<0) state.qrSize='md';
+    if(['center','left','right'].indexOf(state.qrPos)<0) state.qrPos='center';
+    state.qrLabel=Array.from(String(state.qrLabel==null?'':state.qrLabel)).slice(0,24).join('');
+    state.bySem=cut12(state.bySem); state.wmText=String(state.wmText||'').slice(0,24); state.qrText=String(state.qrText||'').slice(0,300);
   }
   var BGS=[['White','#ffffff'],['Ivory','#fffaf0'],['Sand','#f6efe2'],['Paper gray','#f3f4f6'],['Sky','#eaf3fc'],['Mint','#eaf6ee'],['Blush','#fcefef']];
   BGS.forEach(function(p){
@@ -2291,9 +2796,301 @@ function buildCover(d, paperKey, measure) {
     setList(COVER_KEY, []); setList(DESIGN_KEY, []); refreshLocalLists(); dataNote('Saved covers and designs deleted.');
   });
   confirmBtn('#clearAll', 'Reset everything', function () {
-    try { localStorage.removeItem(KEY); localStorage.removeItem(COVER_KEY); localStorage.removeItem(DESIGN_KEY); } catch (e) {}
+    try { localStorage.removeItem(KEY); localStorage.removeItem(COVER_KEY); localStorage.removeItem(DESIGN_KEY); localStorage.removeItem(PROF_KEY); } catch (e) {}
     location.reload();
   });
+
+  /* ================= added: profile, undo/redo, validation, formats, extras ================= */
+  var PROF_KEY = 'groot-profile', extraSrc = {};
+  function expScale(layout, want) { var px = layout.W * layout.H * want * want; return px > 16e6 ? want * Math.sqrt(16e6 / px) : want; }
+  function syncImgs() {
+    ['sigS', 'sigT'].forEach(function (k) {
+      var u = effSig(k);
+      if (!u) { if (extraImg[k]) { delete extraImg[k]; delete extraAR[k]; } extraSrc[k] = ''; return; }
+      if (extraSrc[k] === u) return;
+      extraSrc[k] = u;
+      var im = new Image();
+      im.onload = function () { if (extraSrc[k] !== u) return; extraImg[k] = im; extraAR[k] = im.naturalHeight / im.naturalWidth; schedule(); };
+      im.src = u;
+    });
+  }
+  function readImg(file, max, cb, err) {
+    var fr = new FileReader();
+    fr.onerror = function () { if (err) err(); };
+    fr.onload = function () {
+      var i = new Image();
+      i.onerror = function () { if (err) err(); };
+      i.onload = function () {
+        var k = Math.min(1, max / Math.max(i.naturalWidth, i.naturalHeight)), c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(i.naturalWidth * k)); c.height = Math.max(1, Math.round(i.naturalHeight * k));
+        c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); cb(c.toDataURL('image/png'), i.naturalWidth, i.naturalHeight);
+      };
+      i.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+  /* read the picked file first, clear the input only afterwards (some mobile browsers drop the file if it is cleared early) */
+  var SIG_MAX_MB = 2, SIG_MAX_PX = 2000, SIG_STORE_PX = 600, SIG_TYPES = /^image\/(png|jpe?g|webp)$/i;
+  function sigProblem(f) {
+    if (!SIG_TYPES.test(f.type || '') && !/\.(png|jpe?g|webp)$/i.test(f.name || '')) return 'Unsupported file type. Use a PNG, JPG or WebP image.';
+    if (f.size > SIG_MAX_MB * 1048576) return 'That image is ' + (f.size / 1048576).toFixed(1) + ' MB. The maximum is ' + SIG_MAX_MB + ' MB.';
+    return '';
+  }
+  function pickImg(inp, max, cb, err) {
+    var f = inp.files && inp.files[0]; if (!f) return;
+    var end = function () { try { inp.value = ''; } catch (e) {} };
+    var bad = sigProblem(f); if (bad) { end(); if (err) err(bad); return; }
+    readImg(f, max, function (u, w, h) { end(); cb(u, w, h); }, function () { end(); if (err) err('Could not read that image. Try a PNG, JPG or WebP file.'); });
+  }
+  /* 12-letter limit: counts real characters (not UTF-16 units), works for Bengali/emoji, and waits for IME composition to finish */
+  function clamp12(el) { var a = Array.from(el.value); if (a.length > 12) { el.value = a.slice(0, 12).join(''); return true; } return false; }
+  function isMax12(t) { return !!(t && t.hasAttribute && t.hasAttribute('data-max12')); }
+  document.addEventListener('input', function (e) { if (isMax12(e.target) && !e.isComposing) clamp12(e.target); }, true);
+  document.addEventListener('compositionend', function (e) { var t = e.target; if (isMax12(t) && clamp12(t)) t.dispatchEvent(new Event('input', { bubbles: true })); }, true);
+  function effSig(k) { return state[k] || (k === 'sigS' ? profSig : ''); }
+
+  /* ---- download formats ---- */
+  function makeImg(layout, mime) {
+    return new Promise(function (res, rej) {
+      var cv = document.createElement('canvas'); drawTo(cv, layout, Math.round(layout.W * expScale(layout, state.printReady ? 4.1667 : 4)), 1);
+      cv.toBlob(function (b) { if (b) b.arrayBuffer().then(res); else rej(new Error('image')); }, mime, 0.95);
+    });
+  }
+  async function makeDocx(layout) {
+    var png = await makeImgSized(layout, 2.6), z = new JSZip(), E = 12700, k = 0.995;
+    var cx = Math.round(layout.W * k * E), cy = Math.round(layout.H * k * E);
+    z.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+    z.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    z.file('word/_rels/document.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/cover.png"/></Relationships>');
+    z.file('word/document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body><w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="' + cx + '" cy="' + cy + '"/><wp:docPr id="1" name="Cover page"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="cover.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + cx + '" cy="' + cy + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:sectPr><w:pgSz w:w="' + Math.round(layout.W * 20) + '" w:h="' + Math.round(layout.H * 20) + '"/><w:pgMar w:top="0" w:right="0" w:bottom="0" w:left="0" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr></w:body></w:document>');
+    z.file('word/media/cover.png', png);
+    return z.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
+  }
+  function makeImgSized(layout, want) {
+    return new Promise(function (res, rej) {
+      var cv = document.createElement('canvas'); drawTo(cv, layout, Math.round(layout.W * expScale(layout, want)), 1);
+      cv.toBlob(function (b) { if (b) b.arrayBuffer().then(res); else rej(new Error('image')); }, 'image/png');
+    });
+  }
+  function makeSvg(layout) {
+    var W = layout.W, H = layout.H, ff = (state.coverFont || 'Caladea') + ", 'Noto Sans Bengali', serif";
+    function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function n(v) { return Math.round(v * 100) / 100; }
+    var bg = state.printReady ? '#ffffff' : (/^#[0-9a-f]{6}$/i.test(state.cBg || '') ? state.cBg : '#ffffff');
+    var o = ['<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + n(W) + ' ' + n(H) + '" width="' + n(W) + 'pt" height="' + n(H) + 'pt">', '<rect width="' + n(W) + '" height="' + n(H) + '" fill="' + bg + '"/>'];
+    var AN = { left: 'start', center: 'middle', right: 'end' };
+    layout.prims.forEach(function (p) {
+      if (p.t === 'rect') o.push('<rect x="' + n(p.x) + '" y="' + n(p.y) + '" width="' + n(p.w) + '" height="' + n(p.h) + '" fill="' + p.fill + '"/>');
+      else if (p.t === 'img') { var u = p.k ? effSig(p.k) : LOGO_URI; if (u) o.push('<image x="' + n(p.x) + '" y="' + n(p.y) + '" width="' + n(p.w) + '" height="' + n(p.h) + '" href="' + u + '" xlink:href="' + u + '"' + (state.printBW ? ' style="filter:grayscale(1)"' : '') + '/>'); }
+      else if (p.t === 'poly') o.push('<polygon points="' + p.pts.map(function (q) { return n(q[0]) + ',' + n(q[1]); }).join(' ') + '" fill="' + p.fill + '"/>');
+      else if (p.t === 'disc') o.push('<circle cx="' + n(p.x) + '" cy="' + n(p.y) + '" r="' + n(p.r) + '" fill="' + p.fill + '"/>');
+      else o.push('<text x="' + n(p.x) + '" y="' + n(p.y) + '" font-family="' + ff + '" font-size="' + n(p.size) + '" font-weight="' + (p.bold ? 700 : 400) + '"' + (p.italic ? ' font-style="italic"' : '') + (p.underline ? ' text-decoration="underline"' : '') + ' fill="' + p.color + '" text-anchor="' + (AN[p.align] || 'start') + '"' + (p.alpha ? ' opacity="' + p.alpha + '"' : '') + (p.rot ? ' transform="rotate(' + p.rot + ' ' + n(p.x) + ' ' + n(p.y) + ')"' : '') + '>' + esc(p.str) + '</text>');
+    });
+    o.push('</svg>');
+    return o.join('\n');
+  }
+  var plUrl = '', plBusy = false;
+  function plRender() {
+    if (plBusy) return Promise.resolve(); plBusy = true;
+    return new Promise(function (res, rej) {
+      var layout = buildCover(cur(), state.paper, measure), cv = document.createElement('canvas');
+      drawTo(cv, layout, Math.round(layout.W * expScale(layout, 4.1667)), 1);
+      cv.toBlob(function (b) {
+        plBusy = false;
+        if (!b) { rej(new Error('print')); return; }
+        if (plUrl) URL.revokeObjectURL(plUrl);
+        plUrl = URL.createObjectURL(b);
+        var L = $('#printLayer');
+        L.style.setProperty('--plw', (layout.W - 0.6) + 'pt'); L.style.setProperty('--plh', (layout.H - 0.6) + 'pt');
+        $('#plPage').textContent = '@page{size:' + layout.W + 'pt ' + layout.H + 'pt;margin:0}';
+        $('#plImg').src = plUrl; res();
+      }, 'image/png');
+    });
+  }
+  function plSyncChecks() { $('#plReady').checked = !!state.printReady; $('#plBW').checked = !!state.printBW; $('#plSafe').checked = !!state.printSafe; }
+  function openPrint() {
+    if (!fontsReady) { say('Fonts are still loading. Try again in a moment.', true); return; }
+    plSyncChecks(); $('#plShare').hidden = !(navigator.share && navigator.canShare);
+    $('#printLayer').hidden = false; document.body.style.overflow = 'hidden';
+    $('#printLayer').scrollTop = 0;
+    plRender().catch(function () { say('Could not prepare the print preview.', true); });
+  }
+  function closePrint() { $('#printLayer').hidden = true; document.body.style.overflow = ''; if (plUrl) { URL.revokeObjectURL(plUrl); plUrl = ''; $('#plImg').removeAttribute('src'); } }
+  [['plReady', 'printReady'], ['plBW', 'printBW'], ['plSafe', 'printSafe']].forEach(function (g) {
+    $('#' + g[0]).addEventListener('change', function () { state[g[1]] = this.checked; save(); fillForm(); schedule(); plRender(); });
+  });
+  $('#plClose').addEventListener('click', closePrint);
+  $('#plPdf').addEventListener('click', function () { saveFile('pdf', this); });
+  $('#plPrint').addEventListener('click', function () { try { window.print(); } catch (e) { say('Printing is not available in this view. Use Save PDF or Share.', true); } });
+  $('#plShare').addEventListener('click', async function () {
+    try {
+      if (!window.jspdf) throw new Error('pdf');
+      var layout = buildCover(cur(), state.paper, measure), buf = await makePdf(layout);
+      var f = new File([buf], fileName() + '.pdf', { type: 'application/pdf' });
+      if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f], title: fileName() });
+      else say('Sharing files is not supported here. Use Save PDF.', true);
+    } catch (e) { if (!e || e.name !== 'AbortError') say('Could not share the file. Use Save PDF instead.', true); }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#printLayer').hidden) closePrint(); });
+  var FORMATS = [['jpg', 'JPG image'], ['png', 'PNG image'], ['webp', 'WebP image'], ['docx', 'Word document (.docx)'], ['svg', 'SVG (vector)'], ['print', 'Print / preview']];
+  function closeMenus() { document.querySelectorAll('.dlmenu').forEach(function (m) { m.hidden = true; }); document.querySelectorAll('.dlcaret').forEach(function (c) { c.setAttribute('aria-expanded', 'false'); }); }
+  document.querySelectorAll('.dlsplit').forEach(function (box) {
+    var main = box.querySelector('.btn:not(.dlcaret)'), caret = box.querySelector('.dlcaret'), menu = box.querySelector('.dlmenu');
+    FORMATS.forEach(function (f) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = f[1];
+      b.addEventListener('click', function () { closeMenus(); if (f[0] === 'print') openPrint(); else saveFile(f[0], main); });
+      menu.appendChild(b);
+    });
+    caret.addEventListener('click', function (e) { e.stopPropagation(); var open = menu.hidden; closeMenus(); menu.hidden = !open; caret.setAttribute('aria-expanded', String(open)); });
+  });
+  document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('.dlsplit')) closeMenus(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenus(); });
+  $('#printNow').addEventListener('click', openPrint);
+
+  /* ---- signatures + extras ---- */
+  function extrasSync() {
+    var o = $('#fscaleOut'); if (o) o.textContent = (parseInt(state.fscale, 10) || 100) + '%';
+    var fn = $('#fscaleNum'); if (fn && document.activeElement !== fn) fn.value = parseInt(state.fscale, 10) || 100;
+    var qn = $('#qrNote');
+    if (qn) {
+      var raw = tidy(state.qrText), nq = qrNorm(raw);
+      qn.textContent = !raw ? ''
+        : (nq !== raw ? 'Will be saved as: ' + nq : (/^https?:\/\//i.test(nq) ? 'Link detected. It will be clickable in the PDF.' : 'This will be shown as plain text in the QR code (not a link).'));
+    }
+    $('#sigSName').textContent = state.sigS ? 'Signature added' : (profSig ? 'Using your profile signature' : 'None added'); $('#sigTName').textContent = state.sigT ? 'Signature added' : 'None added';
+    $('#sigSDel').hidden = !state.sigS; $('#sigTDel').hidden = !state.sigT;
+    var up = $('#useProfile'); if (up) up.hidden = !getProfile();
+    styleSync();
+  }
+  /* ---- text style: whole cover or one part ---- */
+  function styleSync() {
+    var t = $('#fTarget'); if (!t) return;
+    var tg = t.value || 'all', fg = state.fgrp || {}, v = tg === 'all'
+      ? { b: state.fbold, i: state.fitalic, u: state.funder, c: state.fcase }
+      : (fg[tg] || {});
+    $('#fBold').checked = !!v.b; $('#fItalic').checked = !!v.i; $('#fUnder').checked = !!v.u; $('#fCase').value = v.c || 'normal';
+    Array.prototype.forEach.call(t.options, function (o) {
+      if (!o.hasAttribute('data-l')) o.setAttribute('data-l', o.textContent);
+      var g = fg[o.value], on = o.value === 'all' ? (state.fbold || state.fitalic || state.funder || (state.fcase && state.fcase !== 'normal')) : (g && (g.b || g.i || g.u || (g.c && g.c !== 'normal')));
+      o.textContent = o.getAttribute('data-l') + (on ? ' \u2022' : '');
+    });
+  }
+  function styleSet() {
+    var tg = $('#fTarget').value || 'all', b = $('#fBold').checked, i = $('#fItalic').checked, u = $('#fUnder').checked, c = $('#fCase').value || 'normal';
+    if (tg === 'all') { state.fbold = b; state.fitalic = i; state.funder = u; state.fcase = c; }
+    else {
+      var o = Object.assign({}, state.fgrp || {});
+      if (!b && !i && !u && c === 'normal') delete o[tg]; else o[tg] = { b: b ? 1 : 0, i: i ? 1 : 0, u: u ? 1 : 0, c: c };
+      state.fgrp = o;
+    }
+    save(); styleSync(); schedule();
+  }
+  ['fBold', 'fItalic', 'fUnder', 'fCase'].forEach(function (id) { $('#' + id).addEventListener('change', styleSet); });
+  $('#fTarget').addEventListener('change', styleSync);
+  [['sigSFile', 'sigS'], ['sigTFile', 'sigT']].forEach(function (g) {
+    $('#' + g[0]).addEventListener('change', function () {
+      pickImg(this, SIG_STORE_PX, function (u, w, h) { state[g[1]] = u; state.showSig = true; $('#showSig').checked = true; save(); extrasSync(); schedule();
+        say(w > SIG_MAX_PX || h > SIG_MAX_PX ? 'Signature added (' + w + '\u00d7' + h + ' px was resized to fit).' : 'Signature added.'); },
+        function (m) { say(m, true); });
+    });
+  });
+  [['sigSDel', 'sigS'], ['sigTDel', 'sigT']].forEach(function (g) {
+    $('#' + g[0]).addEventListener('click', function () { state[g[1]] = ''; save(); extrasSync(); schedule(); });
+  });
+  document.addEventListener('input', function (e) { if (e.target && e.target.getAttribute && /^(fscale|qrText)$/.test(e.target.getAttribute('data-k'))) extrasSync(); });
+  var fsNum = $('#fscaleNum');
+  function fsApply(v, final) {
+    var n = parseInt(v, 10);
+    if (isNaN(n)) { if (final) fsNum.value = state.fscale; return; }
+    var c = Math.max(70, Math.min(130, n));
+    if (!final && c !== n) return; /* wait until the typed number is in range */
+    state.fscale = String(c); if (final) fsNum.value = c;
+    var r = document.querySelector('[data-k="fscale"]'); if (r) r.value = c;
+    save(); extrasSync(); schedule();
+  }
+  fsNum.addEventListener('input', function () { fsApply(this.value, false); });
+  fsNum.addEventListener('change', function () { fsApply(this.value, true); });
+  fsNum.addEventListener('blur', function () { fsApply(this.value, true); });
+
+  /* ---- Student Profile (this device only) ---- */
+  function getProfile() { try { var p = JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); return p && typeof p === 'object' ? p : null; } catch (e) { return null; } }
+  function setProfile(p) { try { if (p) localStorage.setItem(PROF_KEY, JSON.stringify(p)); else localStorage.removeItem(PROF_KEY); profSig = (p && p.sig) || ''; return true; } catch (e) { return false; } }
+  function applyProfile(p) {
+    if (!p) return;
+    if (p.uni) state.university = p.uni;
+    if (p.dept) state.department = p.dept;
+    if (p.name) state.byName = p.name;
+    if (p.id) state.byId = p.id;
+    if (p.sec) state.bySec = p.sec;
+    if (p.sem) state.bySem = cut12(p.sem);
+    if (p.name && !state.m1n) state.m1n = p.name;
+    if (p.id && !state.m1i) state.m1i = p.id;
+    save(); fillForm(); schedule();
+  }
+  var pfSig = '';
+  function pfShowSig() { var im = $('#pfSigImg'); im.hidden = !pfSig; if (pfSig) im.src = pfSig; $('#pfSigDel').hidden = !pfSig; }
+  function pfNote(t, err) { var e = $('#pfStatus'); e.textContent = t; e.className = 'small-status' + (err ? ' err' : ''); }
+  function pfHas(p) { return !!(p && (p.uni || p.name || p.id || p.sec || p.sem || p.sig)); }
+  function pfMode(edit) {
+    $('#pfView').hidden = edit; $('#pfForm').hidden = !edit;
+    if (edit) { fillProfileForm(); setTimeout(function () { try { $('#pfName').focus(); } catch (e) {} }, 30); } else renderProfileView();
+  }
+  function renderProfileView() {
+    var p = getProfile(), has = pfHas(p), L = $('#pfList');
+    $('#pfEmpty').hidden = has; L.hidden = !has; $('#pfUse').hidden = !has; $('#pfClear').hidden = !has;
+    $('#pfEdit').textContent = has ? 'Edit Profile' : 'Add details';
+    $('#pfViewStatus').textContent = '';
+    L.textContent = '';
+    if (!has) return;
+    [['University', p.uni], ['Department', p.dept], ['Name', p.name], ['Student ID', p.id], ['Section', p.sec], ['Semester', p.sem]].forEach(function (r) {
+      if (!r[1]) return;
+      var row = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = r[0]; dd.textContent = r[1]; row.appendChild(dt); row.appendChild(dd); L.appendChild(row);
+    });
+    if (p.sig) {
+      var row = document.createElement('div'), dt = document.createElement('dt'), dd = document.createElement('dd'), im = document.createElement('img');
+      dt.textContent = 'Signature'; im.alt = 'Your signature'; im.src = p.sig; dd.appendChild(im); row.appendChild(dt); row.appendChild(dd); L.appendChild(row);
+    }
+  }
+  function fillProfile() { pfMode(false); }
+  function fillProfileForm() {
+    var p = getProfile() || {};
+    $('#pfUni').value = p.uni || state.university || '';
+    $('#pfDept').value = p.dept || state.department || '';
+    $('#pfName').value = p.name || ''; $('#pfId').value = p.id || ''; $('#pfSec').value = p.sec || ''; $('#pfSem').value = p.sem || '';
+    $('#pfSemSel').value = ''; pfSig = p.sig || ''; pfShowSig(); pfNote('');
+  }
+  [['', 'Choose']].concat(SEMS.map(function (x) { return [x, x]; })).forEach(function (q) {
+    var o = document.createElement('option'); o.value = q[0]; o.textContent = q[1]; $('#pfSemSel').appendChild(o);
+  });
+  $('#pfSemSel').addEventListener('change', function () { if (this.value) $('#pfSem').value = cut12(this.value); this.value = ''; });
+  $('#pfSigBtn').addEventListener('click', function () { $('#pfSigFile').click(); });
+  $('#pfSigFile').addEventListener('change', function () {
+    pickImg(this, SIG_STORE_PX, function (u, w, h) { pfSig = u; pfShowSig(); pfNote((w > SIG_MAX_PX || h > SIG_MAX_PX ? 'Large image was resized. ' : '') + 'Signature added. Press Save profile.'); },
+      function (m) { pfNote(m, true); });
+  });
+  $('#pfSigDel').addEventListener('click', function () { pfSig = ''; pfShowSig(); });
+  $('#pfSave').addEventListener('click', function () {
+    var p = { uni: tidy($('#pfUni').value), dept: $('#pfDept').value, name: tidy($('#pfName').value), id: tidy($('#pfId').value), sec: tidy($('#pfSec').value), sem: cut12(tidy($('#pfSem').value)), sig: pfSig };
+    if (!setProfile(p)) { pfNote('Storage is full; could not save. Try a smaller signature image.', true); return; }
+    applyProfile(p); extrasSync();
+    pfNote('Saved on this device and applied to your cover.');
+    pfMode(false); $('#pfViewStatus').textContent = 'Saved on this device and applied to your cover.';
+  });
+  $('#pfEdit').addEventListener('click', function () { pfMode(true); });
+  $('#pfCancel').addEventListener('click', function () { pfMode(false); });
+  var pfArmed = 0;
+  $('#pfClear').addEventListener('click', function () {
+    var b = this;
+    if (!pfArmed) { b.textContent = 'Click again to clear'; pfArmed = setTimeout(function () { pfArmed = 0; b.textContent = 'Clear profile'; }, 4000); return; }
+    clearTimeout(pfArmed); pfArmed = 0; b.textContent = 'Clear profile';
+    setProfile(null); renderProfileView(); extrasSync(); $('#pfViewStatus').textContent = 'Profile removed from this device.';
+  });
+  $('#useProfile').addEventListener('click', function () { applyProfile(getProfile()); say('Filled from your Student Profile.'); });
+  $('#pfUse').addEventListener('click', function () { applyProfile(getProfile()); $('#pfViewStatus').textContent = 'Filled on your cover.'; });
+  new MutationObserver(function () { if ($('#dlgProfile').open) fillProfile(); }).observe($('#dlgProfile'), { attributes: true, attributeFilter: ['open'] });
+  var p0 = getProfile(); profSig = (p0 && p0.sig) || '';
+  if (p0 && !state.byName && !state.byId && !state.bySec) applyProfile(p0);
 
   fillForm();
   loadAssets().then(function () { fontsReady = true; render(); });
@@ -2345,7 +3142,7 @@ function buildCover(d, paperKey, measure) {
   if(dlg) new MutationObserver(counts).observe(dlg,{attributes:true,attributeFilter:['open']});
   var bb=document.getElementById('backupBtn');
   if(bb) bb.addEventListener('click',function(){
-    var data={app:'Groot Cover Page Generator',exported:new Date().toISOString(),covers:list('groot-local-covers'),designs:list('groot-local-templates')};
+    var data={app:'Groot Cover Page Generator',exported:new Date().toISOString(),covers:list('groot-local-covers'),designs:list('groot-local-templates'),profile:(function(){try{return JSON.parse(localStorage.getItem('groot-profile')||'null');}catch(e){return null;}})()};
     var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
     a.download='groot-backup.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   });
