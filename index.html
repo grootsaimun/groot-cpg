@@ -431,6 +431,69 @@ canvas#paper,canvas#paper2{transition:opacity .15s ease}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 <style id="plPage"></style>
+<style id="rtcss">
+/* ===== IIUC Routine Generator ===== */
+.dr-sec{padding:12px 18px 4px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dr-new{flex:none;font-size:10px;font-weight:700;letter-spacing:.04em;background:var(--accent);color:var(--accent-fg);border-radius:99px;padding:2px 8px}
+.rt-app{position:fixed;inset:0;z-index:3000;display:flex;flex-direction:column;background:var(--bg);color:var(--fg)}
+.rt-app[hidden]{display:none!important}
+.rt-top{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
+.rt-top h2{margin:0;font-size:17px;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-ibtn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);cursor:pointer}
+.rt-acts{display:flex;gap:6px;flex-wrap:wrap}
+.rt-acts .btn{padding:8px 12px;font-size:14px}
+.rt-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 310px}
+.rt-stage{min-width:0;min-height:0;overflow:auto;padding:8px;background:var(--stage,var(--bg));position:relative;-webkit-overflow-scrolling:touch}
+.rt-stage canvas{display:block;margin:0 auto;box-shadow:0 6px 28px rgba(0,0,0,.25);background:#fff;border-radius:2px;touch-action:manipulation;cursor:pointer}
+.rt-zoom{display:flex;gap:6px;align-items:center;justify-content:center;margin:0 0 6px;flex-wrap:wrap}
+.rt-zoom .btn{padding:5px 12px;font-size:13px}
+.rt-zoom small{color:var(--muted)}
+.rt-side{min-height:0;overflow:auto;border-left:1px solid var(--line);background:var(--surface);padding:6px 12px 24px}
+.rt-side details{border-bottom:1px solid var(--line);padding:6px 0}
+.rt-side summary{cursor:pointer;font-weight:700;font-size:15px;padding:10px 2px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.rt-side summary::-webkit-details-marker{display:none}
+.rt-side summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin-right:4px;transition:transform .18s}
+.rt-side details[open] summary::after{transform:rotate(-135deg)}
+.rt-side .f{display:flex;flex-direction:column;gap:4px;margin:8px 0;font-size:13px;color:var(--muted)}
+.rt-side .f>span{font-weight:600}
+.rt-inline{display:flex;gap:6px}
+.rt-inline input{flex:1}
+.rt-inline select{flex:0 0 38%;max-width:150px}
+.rt-g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rt-tpls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.rt-tpl{border:2px solid var(--line);border-radius:10px;background:var(--surface-2);padding:4px;cursor:pointer;font:inherit;font-size:12px;font-weight:600;color:var(--fg);text-align:center}
+.rt-tpl[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.rt-tpl canvas{width:100%;height:auto;display:block;border-radius:5px;margin-bottom:3px}
+.rt-pals{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.rt-pal{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;overflow:hidden;position:relative;background:none}
+.rt-pal[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:2px}
+.rt-pal i{position:absolute;top:0;bottom:0;width:50%}
+.rt-pal i:first-child{left:0}.rt-pal i:last-child{right:0}
+.rt-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rt-cols label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.rt-cols input[type=color]{width:42px;height:34px;padding:0;border:1px solid var(--line);border-radius:6px;background:none;flex:none}
+.rt-row{display:flex;gap:6px;align-items:center;margin:5px 0}
+.rt-row input{flex:1}
+.rt-row b{flex:0 0 34px;font-size:12px;color:var(--muted)}
+.rt-step{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:14px}.rt-step span{flex:1;font-weight:600}.rt-step output{min-width:24px;text-align:center;font-weight:700}
+.rt-mini{flex:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--fg);cursor:pointer;font:inherit;line-height:1}
+.rt-check{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:14px}
+.rt-status{min-height:1.2em;font-size:12px;color:var(--ok);flex:1 0 100%;margin:0}
+.rt-status.err{color:#b3261e}
+.rt-dlg{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:16px;width:min(440px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto}
+.rt-dlg::backdrop{background:rgba(8,14,22,.55)}
+.rt-dlg h3{margin:0 0 6px;font-size:17px}
+.rt-dlg label.f{display:flex;flex-direction:column;gap:4px;margin:9px 0;font-size:13px;color:var(--muted);font-weight:600}
+.rt-chips{display:flex;gap:6px;flex-wrap:wrap}
+.rt-chip{border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:99px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}
+.rt-chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.rt-dlg .save-row{margin-top:12px}
+@media(max-width:860px){
+  .rt-body{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(230px,46%) minmax(0,1fr)}
+  .rt-side{border-left:0;border-top:1px solid var(--line)}
+  .rt-top h2{font-size:15px}
+}
+</style>
 </head>
 <body>
 <div id="printLayer" hidden role="dialog" aria-label="Print preview">
@@ -768,6 +831,9 @@ canvas#paper,canvas#paper2{transition:opacity .15s ease}
     <div class="dr-brand" id="drTitle"><span class="gr" aria-label="Groot"><span class="lt" style="--i:0" aria-hidden="true">G</span><span class="lt" style="--i:1" aria-hidden="true">r</span><span class="lt eye" style="--i:2" aria-hidden="true">o</span><span class="lt eye e2" style="--i:3" aria-hidden="true">o</span><span class="lt tt" style="--i:4" aria-hidden="true">t<svg class="sprout" viewBox="0 0 20 20" aria-hidden="true"><path class="lf lf1" d="M10 19C4 17 2 11 3 5C8 7 10 12 10 19Z" fill="#5cc27a"/><path class="lf lf2" d="M10 19C16 17 18 11 17 5C12 7 10 12 10 19Z" fill="#7cc243"/><path class="lf lf3" d="M10 19C6 13 7 6 10 1C13 6 14 13 10 19Z" fill="#2e9e5b"/></svg></span></span> <span class="gsub">Cover Page Generator</span></div>
   </div>
   <nav class="dr-list">
+      <div class="dr-sec">Special features</div>
+      <button type="button" class="dr-item" id="openRoutine" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 13h3M13 13h3M8 17h3"/></svg><span>IIUC Routine Generator</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="dr-sec">General</div>
       <button type="button" class="dr-item" id="openProfile" data-dr data-dlg="dlgProfile" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span>Student Profile</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
       <button type="button" class="dr-item" id="openTheme" data-dr data-dlg="dlgTheme" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg><span>Theme</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
       <button type="button" class="dr-item" id="openFeatures" data-dr data-dlg="dlgFeatures" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9.3l-4 3.9 1 5.6-5-2.8-5 2.8 1-5.6-4-3.9 5.5-.8z"/></svg><span>Features</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -809,6 +875,11 @@ canvas#paper,canvas#paper2{transition:opacity .15s ease}
     <div class="feat"><h4>Paper size and font</h4>
       <p>Paper: A3, A4, A5, B5, US Letter, US Legal, Executive or Tabloid. Cover font: Caladea, Inter, Georgia, Arial or Noto Sans Bengali.</p>
       <div class="eg"><b>Paper sizes:</b><br>A3 &middot; 297&times;420 mm<br>A4 &middot; 210&times;297 mm<br>A5 &middot; 148&times;210 mm<br>B5 &middot; 176&times;250 mm<br>Letter &middot; 8.5&times;11 in<br>Legal &middot; 8.5&times;14 in<br>Executive &middot; 7.25&times;10.5 in<br>Tabloid &middot; 11&times;17 in</div></div>
+    <div class="feat"><h4>IIUC Routine Generator</h4>
+      <p>Open it from the menu (Special features). It opens full screen with a large live preview. Pick one of 5 templates, a color theme or your own colors, and one of 8 fonts (Poppins, Montserrat, Inter, Roboto Condensed, Oswald, Playfair Display, Merriweather, Caladea). Choose the department, semester and section from a list or type them.</p>
+      <p>Tap any box to add a class: course code, optional course name, teacher&rsquo;s short name, room and optional lab groups. The same class with the same teacher in neighbouring periods joins into one box. Tap a time, a day name or the break to rename it.</p>
+      <p>Use the &minus; / + buttons to add or remove columns before the break, columns after the break (up to 6 each) and rows (up to 10). New rows continue the week in order (Sat, Sun, Mon, Tues, Wed, Thu, Fri) even after you remove some. New columns get the next 50-minute time automatically.</p>
+      <p>Download as PDF, PNG or JPG, or print it. The PDF carries a small Groot mark at the bottom left. Your routine is saved on this device only.</p></div>
     <div class="feat"><h4>Student Profile</h4>
       <p>Save your details once and they fill the &ldquo;Submitted by&rdquo; part of every cover. Open it from the menu to see your saved details, then press Add Details (or Edit Profile) to add or change your university, department, name, ID, section, semester (up to 12 letters) and an optional signature (max 2 MB, up to 2000&times;2000 px, best about 600&times;200 px, PNG, JPG or WebP; it is used on a cover only when &ldquo;Show signature lines&rdquo; is on). They are stored only in this browser. Clearing your browser data, using &ldquo;Reset everything&rdquo;, or pressing Clear in the profile removes them.</p></div>
     <div class="feat"><h4>Language, border and extras</h4>
@@ -1000,10 +1071,110 @@ canvas#paper,canvas#paper2{transition:opacity .15s ease}
     <p>Groot Cover Page Generator. Created by <strong>Abdullah Al Saimun</strong>, CSE-61, IIUC.</p>
     <p>Made to help students prepare neat lab report, assignment, group project and lab index covers quickly.</p>
     <h3>Version</h3>
-    <p>Version 20261118.009.003</p>
+    <p>Version 20261117.010.001</p>
     <p>Last updated: 17 November 2026</p>
   </div>
 </dialog>
+
+
+<div class="rt-app" id="rtApp" hidden role="dialog" aria-modal="true" aria-label="IIUC Routine Generator">
+  <div class="rt-top">
+    <button type="button" class="rt-ibtn" id="rtBack" aria-label="Back to Groot"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <h2>IIUC Routine Generator</h2>
+  </div>
+  <div class="rt-body">
+    <main class="rt-stage" id="rtStage">
+      <div class="rt-zoom"><button type="button" class="btn ghost" id="rtZout" aria-label="Zoom out">&minus;</button><button type="button" class="btn ghost" id="rtZfit">Fit</button><button type="button" class="btn ghost" id="rtZin" aria-label="Zoom in">+</button><small>Tap any box in the routine to edit it</small></div>
+      <canvas id="rtCanvas" aria-label="Routine preview. Tap a box to edit."></canvas>
+    </main>
+    <aside class="rt-side" id="rtSide">
+      <details open><summary>Download &amp; print</summary>
+<div class="rt-acts">
+      <button type="button" class="btn" id="rtPdf">Download PDF</button>
+      <button type="button" class="btn ghost" id="rtPng">PNG</button>
+      <button type="button" class="btn ghost" id="rtJpg">JPG</button>
+      <button type="button" class="btn ghost" id="rtPrint">Print</button>
+    </div>
+        <label class="f"><span>File name (optional)</span><input type="text" id="rtFname" maxlength="60" autocomplete="off" placeholder="Class-Routine"></label>
+        <p class="rt-status" id="rtStatus" aria-live="polite"></p>
+      </details>
+      <details open><summary>Design</summary>
+        <div class="rt-tpls" id="rtTpls"></div>
+        <div class="f"><span>Color theme</span></div>
+        <div class="rt-pals" id="rtPals"></div>
+        <div class="rt-cols">
+          <label><input type="color" id="rtPri"> Main</label>
+          <label><input type="color" id="rtAcc"> Accent</label>
+          <label><input type="color" id="rtInk"> Text</label>
+          <label><input type="color" id="rtBg"> Page</label>
+        </div>
+        <div class="rt-g2">
+          <label class="f"><span>Paper</span><select id="rtPaper"><option value="a4">A4 (landscape)</option><option value="a3">A3 (landscape)</option><option value="letter">Letter (landscape)</option><option value="legal">Legal (landscape)</option></select></label>
+          <label class="f"><span>Font</span><select id="rtFont"><option value="poppins">Poppins (modern)</option><option value="montserrat">Montserrat (clean)</option><option value="inter">Inter (simple)</option><option value="condensed">Roboto Condensed (compact)</option><option value="oswald">Oswald (tall)</option><option value="playfair">Playfair Display (elegant)</option><option value="merriweather">Merriweather (book)</option><option value="caladea">Caladea (classic)</option></select></label>
+        </div>
+      </details>
+      <details open><summary>Header</summary>
+        <label class="f"><span>University</span><input type="text" id="rtUni" maxlength="90" autocomplete="off"></label>
+        <label class="f"><span>Department</span></label>
+        <div class="rt-inline"><input type="text" id="rtDept" maxlength="90" autocomplete="off" aria-label="Department"><select id="rtDeptSel" aria-label="Choose department"></select></div>
+        <div class="f"><span>Semester</span></div>
+        <div class="rt-inline"><input type="text" id="rtSem" maxlength="20" autocomplete="off" placeholder="Type or choose" aria-label="Semester"><select id="rtSemSel" aria-label="Choose semester"></select></div>
+        <div class="f"><span>Section</span></div>
+        <div class="rt-inline"><input type="text" id="rtSec" maxlength="12" autocomplete="off" placeholder="Type or choose" aria-label="Section"><select id="rtSecSel" aria-label="Choose section"></select></div>
+        <label class="f"><span>Routine title</span><input type="text" id="rtTitle" maxlength="40" autocomplete="off"></label>
+        <label class="rt-check"><input type="checkbox" id="rtLogo"> Show the IIUC logo</label>
+      </details>
+      <details open><summary>Rows and columns</summary>
+        <div class="rt-step"><span>Columns before break</span><button type="button" class="rt-mini" id="rtPreM" aria-label="Fewer">&minus;</button><output id="rtPreV">0</output><button type="button" class="rt-mini" id="rtPreP" aria-label="More">+</button></div>
+        <div class="rt-step"><span>Columns after break</span><button type="button" class="rt-mini" id="rtPostM" aria-label="Fewer">&minus;</button><output id="rtPostV">0</output><button type="button" class="rt-mini" id="rtPostP" aria-label="More">+</button></div>
+        <div class="rt-step"><span>Rows (days)</span><button type="button" class="rt-mini" id="rtRowsM" aria-label="Fewer">&minus;</button><output id="rtRowsV">0</output><button type="button" class="rt-mini" id="rtRowsP" aria-label="More">+</button></div>
+        <div class="f"><span>Day names (rows)</span></div>
+        <div id="rtDays"></div>
+        <label class="f"><span>Break text</span><input type="text" id="rtBrk" maxlength="30" autocomplete="off"></label>
+        <label class="f"><span>Top-left box text</span><input type="text" id="rtCorner" maxlength="20" autocomplete="off"></label>
+        <label class="rt-check"><input type="checkbox" id="rtOrds"> Show 1st, 2nd, 3rd&hellip; above the times</label>
+      </details>
+      <details><summary>Class times (columns)</summary>
+        <div id="rtTimes"></div>
+        <button type="button" class="btn ghost small" id="rtTimesReset">Reset to default times</button>
+      </details>
+      <details><summary>Data</summary>
+        <p class="hint">Same class and same teacher in neighbouring periods (on the same side of the break) are joined into one box automatically.</p>
+        <div class="save-row">
+          <button type="button" class="btn ghost small" id="rtSample">Fill sample classes</button>
+          <button type="button" class="btn ghost small" id="rtClear">Clear all classes</button>
+        </div>
+        <p class="hint">Everything is saved on this device only.</p>
+      </details>
+    </aside>
+  </div>
+  <datalist id="rtDlC"></datalist><datalist id="rtDlT"></datalist><datalist id="rtDlR"></datalist>
+  <dialog class="rt-dlg" id="rtCellDlg" aria-labelledby="rtCellTitle">
+    <h3 id="rtCellTitle">Edit class</h3>
+    <p class="hint" id="rtCellSub"></p>
+    <label class="f"><span>Course code</span><input type="text" id="rtfC" maxlength="20" autocomplete="off" list="rtDlC" placeholder="e.g. CSE-1221"></label>
+    <label class="f"><span>Course name (optional)</span><input type="text" id="rtfN" maxlength="60" autocomplete="off" placeholder="e.g. Data Structures"></label>
+    <div class="rt-g2">
+      <label class="f"><span>Teacher&rsquo;s short name</span><input type="text" id="rtfT" maxlength="20" autocomplete="off" list="rtDlT" placeholder="e.g. MNH"></label>
+      <label class="f"><span>Room no</span><input type="text" id="rtfR" maxlength="16" autocomplete="off" list="rtDlR" placeholder="e.g. CX501"></label>
+    </div>
+    <label class="f"><span>Lab groups (optional, one per line: Group | Room)</span><textarea id="rtfG" rows="3" maxlength="200" placeholder="2AM | CX204&#10;2BM | C501"></textarea></label>
+    <div class="f"><span>Put this class in these periods</span><div class="rt-chips" id="rtfP"></div></div>
+    <div class="save-row">
+      <button type="button" class="btn small" id="rtfSave">Save</button>
+      <button type="button" class="btn ghost small" id="rtfClear">Clear box</button>
+      <button type="button" class="btn ghost small" id="rtfCancel">Cancel</button>
+    </div>
+  </dialog>
+  <dialog class="rt-dlg" id="rtTxtDlg" aria-labelledby="rtTxtTitle">
+    <h3 id="rtTxtTitle">Edit</h3>
+    <label class="f"><span id="rtTxtLbl">Text</span><input type="text" id="rtTxtIn" maxlength="30" autocomplete="off"></label>
+    <div class="save-row">
+      <button type="button" class="btn small" id="rtTxtSave">Save</button>
+      <button type="button" class="btn ghost small" id="rtTxtCancel">Cancel</button>
+    </div>
+  </dialog>
+</div>
 
 <script>
 (function () {
@@ -2822,7 +2993,7 @@ function buildCover(d, paperKey, measure) {
     setList(COVER_KEY, []); setList(DESIGN_KEY, []); refreshLocalLists(); dataNote('Saved covers and designs deleted.');
   });
   confirmBtn('#clearAll', 'Reset everything', function () {
-    try { localStorage.removeItem(KEY); localStorage.removeItem(COVER_KEY); localStorage.removeItem(DESIGN_KEY); localStorage.removeItem(PROF_KEY); } catch (e) {}
+    try { localStorage.removeItem(KEY); localStorage.removeItem(COVER_KEY); localStorage.removeItem(DESIGN_KEY); localStorage.removeItem(PROF_KEY); localStorage.removeItem(RT_KEY); } catch (e) {}
     location.reload();
   });
 
@@ -3174,8 +3345,585 @@ function buildCover(d, paperKey, measure) {
   var p0 = getProfile(); profSig = (p0 && p0.sig) || '';
   if (p0 && !state.byName && !state.byId && !state.bySec) applyProfile(p0);
 
+
+
+  /* ================= IIUC Routine Generator ================= */
+  var RT_KEY = 'groot-routine';
+  var RT_TIMES = ['10:40 AM - 11:30 AM', '11:30 AM - 12:20 PM', '12:20 PM - 1:10 PM', '1:50 PM - 2:40 PM', '2:40 PM - 3:30 PM', '3:30 PM - 4:20 PM'];
+  function ordn(p) { var n = p + 1, v = n % 100, sf = ['th', 'st', 'nd', 'rd']; return n + (sf[(v - 20) % 10] || sf[v] || sf[0]); }
+  var RT_ORD = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th'];
+  var RT_TPLS = [['classic', 'Classic'], ['minimal', 'Minimal'], ['cards', 'Soft Cards'], ['bold', 'Bold Blocks'], ['pastel', 'Pastel']];
+  var RT_PALS = [['#4a2c82', '#7b4fc9', '#1b1b2f', '#ffffff'], ['#173b63', '#2a7ab9', '#13202f', '#ffffff'], ['#1f5e3a', '#3a9d62', '#14261c', '#ffffff'], ['#7a1f2b', '#c0475a', '#2a1317', '#ffffff'], ['#0f5f66', '#1aa0a8', '#10282b', '#ffffff'], ['#2b2b2b', '#e07b1a', '#1c1c1c', '#ffffff']];
+  var RT_FONTS = { poppins: 'Poppins', montserrat: 'Montserrat', inter: 'Inter', condensed: '"Roboto Condensed"', oswald: 'Oswald', playfair: '"Playfair Display"', merriweather: 'Merriweather', caladea: 'Caladea' };
+  var RT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Montserrat:wght@400;700&family=Roboto+Condensed:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Fredoka:wght@700&display=swap';
+  var rtFontLink = false;
+  function rtEnsureFont(R) {
+    if (!rtFontLink) { rtFontLink = true; var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = RT_FONT_URL; document.head.appendChild(l); }
+    var f = RT_FONTS[R.font] || 'Poppins';
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    return Promise.all([document.fonts.load('400 16px ' + f), document.fonts.load('700 16px ' + f), document.fonts.load('700 16px Fredoka')].map(function (p) { return p.catch(function () {}); }));
+  }
+  var RT_PAPERS = { a4: [841.89, 595.28], a3: [1190.55, 841.89], letter: [792, 612], legal: [1008, 612] };
+  var rt, rtRaf = 0, rtZoom = 1, rtHits = [], rtEdit = null, rtBusy = false;
+
+  function rtDefaults() {
+    return {
+      tpl: 'classic', pal: 0, pri: RT_PALS[0][0], acc: RT_PALS[0][1], ink: RT_PALS[0][2], bg: RT_PALS[0][3],
+      uni: 'International Islamic University Chittagong', dept: DEPTS[0], sem: '', sec: '', title: 'Class Routine', logo: true,
+      corner: 'Starting Time', fname: '', pre: 3, post: 3, times: RT_TIMES.slice(), brk: '1:10 to 1:50 PM', ords: true, paper: 'a4', font: 'poppins',
+      days: [{ id: 'd1', name: 'Sat' }, { id: 'd2', name: 'Sun' }, { id: 'd3', name: 'Mon' }, { id: 'd4', name: 'Tues' }, { id: 'd5', name: 'Wed' }], nid: 6, cells: {}
+    };
+  }
+  function rtStr(v, n, d) { return typeof v === 'string' ? Array.from(v).slice(0, n).join('') : d; }
+  function rtLoad() {
+    var o = rtDefaults(), j = null;
+    try { j = JSON.parse(localStorage.getItem(RT_KEY) || 'null'); } catch (e) {}
+    if (!j || typeof j !== 'object') return o;
+    var HEX = /^#[0-9a-f]{6}$/i;
+    if (RT_TPLS.some(function (t) { return t[0] === j.tpl; })) o.tpl = j.tpl;
+    ['pri', 'acc', 'ink', 'bg'].forEach(function (k) { if (HEX.test(j[k] || '')) o[k] = j[k]; });
+    if (typeof j.pal === 'number' && j.pal >= -1 && j.pal < RT_PALS.length) o.pal = j.pal;
+    o.uni = rtStr(j.uni, 90, o.uni); o.dept = rtStr(j.dept, 90, o.dept); o.sem = rtStr(j.sem, 20, ''); o.sec = rtStr(j.sec, 12, '');
+    o.fname = rtStr(j.fname, 60, ''); o.title = rtStr(j.title, 40, o.title); o.corner = rtStr(j.corner, 20, o.corner); o.brk = rtStr(j.brk, 30, o.brk);
+    o.logo = j.logo !== false; o.ords = j.ords !== false;
+    if (RT_PAPERS[j.paper]) o.paper = j.paper;
+    if (RT_FONTS[j.font]) o.font = j.font; else if (j.font === 'serif') o.font = 'caladea'; else if (j.font === 'sans') o.font = 'inter';
+    var pre = parseInt(j.pre, 10), post = parseInt(j.post, 10);
+    o.pre = pre >= 1 && pre <= 6 ? pre : 3; o.post = post >= 1 && post <= 6 ? post : 3;
+    o.times = []; for (var i = 0; i < o.pre + o.post; i++) o.times.push(Array.isArray(j.times) && typeof j.times[i] === 'string' ? rtStr(j.times[i], 30, '') : (RT_TIMES[i] || ''));
+    if (Array.isArray(j.days) && j.days.length >= 1 && j.days.length <= 10) {
+      var seen = {}, dd = [];
+      j.days.forEach(function (d) { if (d && typeof d.id === 'string' && /^d\d{1,3}$/.test(d.id) && !seen[d.id]) { seen[d.id] = 1; dd.push({ id: d.id, name: rtStr(d.name, 12, '') }); } });
+      if (dd.length) o.days = dd;
+    }
+    o.nid = Math.max(parseInt(j.nid, 10) || 0, 6, o.days.reduce(function (m, d) { return Math.max(m, parseInt(d.id.slice(1), 10) + 1); }, 0));
+    if (j.cells && typeof j.cells === 'object') Object.keys(j.cells).forEach(function (k) {
+      var c = j.cells[k], m = /^(d\d{1,3}):(\d{1,2})$/.exec(k);
+      if (!m || !c || typeof c !== 'object' || +m[2] >= o.pre + o.post || !o.days.some(function (d) { return d.id === m[1]; })) return;
+      o.cells[k] = { c: rtStr(c.c, 20, ''), n: rtStr(c.n, 60, ''), t: rtStr(c.t, 20, ''), r: rtStr(c.r, 16, ''), g: rtStr(c.g, 200, '') };
+    });
+    return o;
+  }
+  function rtSave() { try { localStorage.setItem(RT_KEY, JSON.stringify(rt)); } catch (e) { rtNote('Could not save on this device (storage is full or blocked).', true); } }
+  var rtNoteT = 0;
+  function rtNote(t, err) { var e = $('#rtStatus'); e.textContent = t; e.className = 'rt-status' + (err ? ' err' : ''); clearTimeout(rtNoteT); if (!err && t) rtNoteT = setTimeout(function () { e.textContent = ''; }, 5000); }
+  function rtKey(id, p) { return id + ':' + p; }
+  function rtCell(id, p) { return rt.cells[rtKey(id, p)] || null; }
+  function rtEmpty(c) { return !c || !(c.c || c.n || c.t || c.r || c.g); }
+
+  /* ---- colors ---- */
+  function hx(h) { return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }
+  function mixc(a, b, t) { var x = hx(a), y = hx(b); return '#' + [0, 1, 2].map(function (i) { return ('0' + Math.round(x[i] + (y[i] - x[i]) * t).toString(16)).slice(-2); }).join(''); }
+  function tintc(c, t) { return mixc(c, '#ffffff', t); }
+  function onCol(c) { var v = hx(c); return (0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2]) > 165 ? '#111111' : '#ffffff'; }
+  function hue(s) { var h = 7; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
+
+  /* ---- merging: same class + same teacher in neighbouring periods become one box ---- */
+  function nrm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+  function canMerge(a, b) {
+    if (!a.c || !b.c || nrm(a.c) !== nrm(b.c) || nrm(a.t) !== nrm(b.t)) return false;
+    if (a.n && b.n && nrm(a.n) !== nrm(b.n)) return false;
+    if (a.r && b.r && nrm(a.r) !== nrm(b.r)) return false;
+    if (a.g && b.g && nrm(a.g) !== nrm(b.g)) return false;
+    return true;
+  }
+  function rtSpans(R, day) {
+    var N = R.pre + R.post, out = [], p = 0;
+    function at(q) { var c = R.cells[rtKey(day.id, q)]; return rtEmpty(c) ? null : c; }
+    while (p < N) {
+      var side = p < R.pre ? R.pre : N, c = at(p), q = p, m = c ? { c: c.c, n: c.n, t: c.t, r: c.r, g: c.g } : null;
+      if (m && m.c) while (q + 1 < side) { var nx = at(q + 1); if (!nx || !canMerge(m, nx)) break; m.n = m.n || nx.n; m.r = m.r || nx.r; m.g = m.g || nx.g; q++; }
+      out.push({ p0: p, p1: q, cell: m }); p = q + 1;
+    }
+    return out;
+  }
+
+  /* ---- template styles ---- */
+  function rtStyle(R) {
+    var P = { pri: R.pri, acc: R.acc, ink: R.ink, bg: R.bg }, W = '#ffffff';
+    var base = { gap: 0, rad: 0, lw: 0.9, outer: 1.6, byCourse: false, line: P.ink, hdr: 'center', meta: 'plain', rowA: W, rowB: tintc(P.pri, 0.93), pageBg: P.bg };
+    var S;
+    switch (R.tpl) {
+      case 'minimal':
+        S = { hdr: 'left', line: tintc(P.ink, 0.78), lw: 0.7, outer: 0, head: null, headTxt: P.ink, headRule: P.acc, corner: null, cornerTxt: P.acc, day: null, dayTxt: P.acc, rowA: null, rowB: null, brk: tintc(P.acc, 0.9), brkTxt: P.acc, code: P.acc, name: tintc(P.ink, 0.35), teach: P.ink, room: P.acc, uniCol: P.ink, deptCol: P.acc, meta: 'plain' };
+        break;
+      case 'cards':
+        S = { gap: 5, rad: 9, line: tintc(P.pri, 0.7), lw: 0.8, outer: 0, head: P.acc, headTxt: onCol(P.acc), corner: P.pri, cornerTxt: onCol(P.pri), day: P.pri, dayTxt: onCol(P.pri), rowA: W, rowB: W, brk: tintc(P.acc, 0.78), brkTxt: P.pri, code: P.pri, name: tintc(P.ink, 0.3), teach: P.ink, room: P.acc, uniCol: P.pri, deptCol: P.acc, meta: 'pill', pageBg: mixc(P.bg, P.pri, 0.07), headCard: true };
+        break;
+      case 'bold':
+        S = { hdr: 'band', line: P.ink, lw: 2, outer: 3.2, head: P.ink, headTxt: onCol(P.ink), corner: P.acc, cornerTxt: onCol(P.acc), day: P.acc, dayTxt: onCol(P.acc), rowA: W, rowB: W, byCourse: 82, brk: P.ink, brkTxt: onCol(P.ink), code: P.ink, name: P.ink, teach: P.ink, room: P.ink, uniCol: onCol(P.pri), deptCol: onCol(P.pri), meta: 'box' };
+        break;
+      case 'pastel':
+        S = { gap: 3, rad: 7, line: null, lw: 0, outer: 0, head: tintc(P.pri, 0.82), headTxt: P.pri, corner: tintc(P.pri, 0.82), cornerTxt: P.pri, day: tintc(P.pri, 0.82), dayTxt: P.pri, rowA: tintc(P.pri, 0.95), rowB: tintc(P.pri, 0.95), byCourse: 90, brk: tintc(P.acc, 0.72), brkTxt: P.pri, code: P.pri, name: P.ink, teach: P.ink, room: P.pri, uniCol: P.pri, deptCol: P.acc, meta: 'pill' };
+        break;
+      default:
+        S = { head: P.pri, headTxt: onCol(P.pri), corner: P.pri, cornerTxt: onCol(P.pri), day: tintc(P.pri, 0.86), dayTxt: P.pri, brk: P.pri, brkTxt: onCol(P.pri), code: mixc(P.pri, W, 0.2), name: P.ink, teach: P.ink, room: P.pri, uniCol: P.pri, deptCol: P.acc };
+    }
+    for (var k in base) if (!(k in S)) S[k] = base[k];
+    return S;
+  }
+
+  /* ---- canvas helpers ---- */
+  function rr(c, x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.arcTo(x + w, y, x + w, y + r, r); c.lineTo(x + w, y + h - r); c.arcTo(x + w, y + h, x + w - r, y + h, r);
+    c.lineTo(x + r, y + h); c.arcTo(x, y + h, x, y + h - r, r); c.lineTo(x, y + r); c.arcTo(x, y, x + r, y, r); c.closePath();
+  }
+  function box(c, x, y, w, h, S, fill, stroke, lw) {
+    if (!fill && !(stroke && lw)) return;
+    if (S.rad) { rr(c, x, y, w, h, S.rad); if (fill) { c.fillStyle = fill; c.fill(); } if (stroke && lw) { c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); } }
+    else { if (fill) { c.fillStyle = fill; c.fillRect(x, y, w, h); } if (stroke && lw) { c.strokeStyle = stroke; c.lineWidth = lw; c.strokeRect(x, y, w, h); } }
+  }
+  function fam(R) { return (RT_FONTS[R.font] || 'Poppins') + ', Inter, system-ui, "Segoe UI", Arial, "Noto Sans Bengali", sans-serif'; }
+  /* draws one line of text, shrinking it to fit maxW; returns the size used */
+  function fitText(c, R, str, x, y, size, bold, color, align, maxW, minSize) {
+    str = String(str); if (!str) return size;
+    var s = size, f = function (z) { c.font = (bold ? '700 ' : '400 ') + z + 'px ' + fam(R); };
+    f(s);
+    if (maxW) {
+      var w = c.measureText(str).width;
+      if (w > maxW) { s = Math.max(minSize || 5.5, size * maxW / w); f(s); }
+      if (c.measureText(str).width > maxW) { var a = Array.from(str); while (a.length > 1 && c.measureText(a.join('') + '…').width > maxW) a.pop(); str = a.join('') + '…'; }
+    }
+    c.fillStyle = color; c.textAlign = align || 'center'; c.textBaseline = 'alphabetic'; c.fillText(str, x, y);
+    return s;
+  }
+  function parseGroups(g) {
+    return String(g || '').split(/\n/).map(function (l) { l = l.trim(); if (!l) return null; var m = /^(.*?)\s*[|,=:]\s*(.*)$/.exec(l) || /^(\S+)\s+(.*)$/.exec(l); return m ? { l: m[1].trim(), r: m[2].trim() } : { l: l, r: '' }; }).filter(Boolean).slice(0, 6);
+  }
+  function drawCellText(c, R, S, x, y, w, h, cell, hsl) {
+    var groups = parseGroups(cell.g), gh = groups.length ? Math.min(h * 0.45, 40) : 0, th = h - gh;
+    var lines = [];
+    if (cell.c) lines.push({ s: cell.c, b: false, col: hsl ? 'hsl(' + hsl + ',45%,26%)' : S.code, k: 1.04 });
+    if (cell.n) lines.push({ s: cell.n, b: false, col: S.name, k: 0.92 });
+    if (cell.t) lines.push({ s: cell.t, b: true, col: S.teach, k: 1 });
+    if (cell.r) lines.push({ s: cell.r, b: true, col: hsl && R.tpl !== 'bold' ? 'hsl(' + hsl + ',50%,22%)' : S.room, k: 1.04 });
+    if (lines.length) {
+      var wsum = lines.reduce(function (a, l) { return a + l.k * 1.3; }, 0), base = Math.max(6, Math.min(13.5, (th - 6) / wsum)), tot = wsum * base, yy = y + (th - tot) / 2;
+      lines.forEach(function (l) { var sz = base * l.k; yy += sz * 1.02; fitText(c, R, l.s, x + w / 2, yy, sz, l.b, l.col, 'center', w - 8, 5.5); yy += sz * 0.28; });
+    }
+    if (groups.length) {
+      var gy = y + th, gw = (w - 6) / groups.length, gx = x + 3;
+      c.strokeStyle = S.line || S.code; c.lineWidth = 0.6; c.beginPath(); c.moveTo(x + 2, gy); c.lineTo(x + w - 2, gy); c.stroke();
+      groups.forEach(function (g, i) {
+        var cx = gx + gw * i + gw / 2;
+        fitText(c, R, g.l, cx, gy + gh * 0.42, Math.min(10, gh * 0.34), true, hsl ? 'hsl(' + hsl + ',60%,30%)' : S.room, 'center', gw - 3, 5);
+        fitText(c, R, g.r, cx, gy + gh * 0.82, Math.min(9.5, gh * 0.3), false, S.name, 'center', gw - 3, 5);
+        if (i) { c.beginPath(); c.moveTo(gx + gw * i, gy + 3); c.lineTo(gx + gw * i, y + h - 3); c.stroke(); }
+      });
+    }
+  }
+  function splitTime(t) { var m = /^(.*?)\s*[-–—]+\s*(.+)$/.exec(t); return m ? [m[1], m[2]] : [t]; }
+
+  /* ---- the routine layout + drawing. LW is fixed (842 units); everything else is relative ---- */
+  function rtSize(R) { var P = RT_PAPERS[R.paper] || RT_PAPERS.a4; return [842, 842 * P[1] / P[0]]; }
+  function rtDraw(c, R, ui, hits) {
+    var LW = rtSize(R)[0], LH = rtSize(R)[1], S = rtStyle(R), M = 26, N = R.pre + R.post, nd = R.days.length;
+    c.save(); c.fillStyle = S.pageBg; c.fillRect(0, 0, LW, LH); c.textBaseline = 'alphabetic';
+    /* ---- header ---- */
+    var hy = M, hdrH = 78, uniSz = 24, deptSz = 14.5;
+    var logoOk = R.logo && logoImg, lh = 62, lw2 = logoOk ? lh / (logoAR || 1.05) : 0;
+    var uni = R.uni.trim(), dept = R.dept.trim();
+    c.font = '700 ' + uniSz + 'px ' + fam(R); var uw = Math.min(c.measureText(uni).width, LW - 2 * M - lw2 - 30);
+    c.font = '400 ' + deptSz + 'px ' + fam(R); var dw0 = Math.min(c.measureText(dept).width, LW - 2 * M - lw2 - 30), tw = Math.max(uw, dw0);
+    var tcx, tAlign, tx;
+    if (S.hdr === 'band') {
+      box(c, 0, 0, LW, hdrH + 20, { rad: 0 }, R.pri, null, 0);
+      var cluster = lw2 + (logoOk ? 18 : 0) + tw, sx = (LW - cluster) / 2;
+      if (logoOk) { c.fillStyle = '#ffffff'; c.beginPath(); c.arc(sx + lw2 / 2, 10 + hdrH / 2 + 4, lh / 2 + 6, 0, 6.2832); c.fill(); c.drawImage(logoImg, sx, 10 + hdrH / 2 + 4 - lh / 2, lw2, lh); }
+      tx = sx + lw2 + (logoOk ? 18 : 0) + tw / 2; tAlign = 'center'; hy = 10;
+      fitText(c, R, uni, tx, hy + 34, uniSz, true, S.uniCol, 'center', tw, 12);
+      fitText(c, R, dept, tx, hy + 58, deptSz, false, S.deptCol, 'center', tw, 8);
+      hdrH += 14;
+    } else if (S.hdr === 'left') {
+      if (logoOk) c.drawImage(logoImg, M, hy + 4, lw2, lh);
+      tx = M + lw2 + (logoOk ? 16 : 0); var mw = LW - M - tx;
+      fitText(c, R, uni, tx, hy + 32, uniSz + 2, true, S.uniCol, 'left', mw, 12);
+      fitText(c, R, dept, tx, hy + 56, deptSz, false, S.deptCol, 'left', mw, 8);
+      c.fillStyle = R.acc; c.fillRect(M, hy + hdrH - 4, LW - 2 * M, 2.4);
+    } else {
+      if (S.headCard) { box(c, M, hy - 4, LW - 2 * M, hdrH + 4, { rad: 12 }, '#ffffff', S.line, 0.8); }
+      var cl = lw2 + (logoOk ? 18 : 0) + tw, sx2 = (LW - cl) / 2;
+      if (logoOk) c.drawImage(logoImg, sx2, hy + (S.headCard ? 5 : 3), lw2, lh);
+      tx = sx2 + lw2 + (logoOk ? 18 : 0) + tw / 2;
+      fitText(c, R, uni, tx, hy + 32, uniSz, true, S.uniCol, 'center', tw, 12);
+      fitText(c, R, dept, tx, hy + 56, deptSz, false, S.deptCol, 'center', tw, 8);
+    }
+    /* meta row: semester / title / section */
+    var my = hy + hdrH + 14, parts = [];
+    var semT = R.sem.trim() ? 'Semester: ' + R.sem.trim() : '', secT = R.sec.trim() ? 'Section: ' + R.sec.trim() : '', ttl = R.title.trim();
+    function meta(txt, x, al, bold) {
+      if (!txt) return;
+      var sz = 13.5; c.font = (bold ? '700 ' : '400 ') + sz + 'px ' + fam(R); var w = c.measureText(txt).width, bx = al === 'left' ? x : al === 'right' ? x - w : x - w / 2;
+      if (S.meta === 'pill') box(c, bx - 10, my - 15, w + 20, 22, { rad: 11 }, tintc(R.acc, 0.82), null, 0);
+      else if (S.meta === 'box') box(c, bx - 10, my - 15, w + 20, 22, { rad: 0 }, null, R.ink, 1.6);
+      fitText(c, R, txt, x, my, sz, bold, S.meta === 'plain' && R.tpl === 'classic' ? R.ink : R.ink, al, LW / 3 - 20, 8);
+    }
+    meta(semT, M + (S.meta === 'plain' ? 0 : 10), 'left', true); meta(secT, LW - M - (S.meta === 'plain' ? 0 : 10), 'right', true);
+    if (ttl) { c.font = '700 15px ' + fam(R); var tw2 = c.measureText(ttl.toUpperCase()).width; if (S.meta === 'plain') { fitText(c, R, ttl.toUpperCase(), LW / 2, my, 15, true, R.pri, 'center', LW / 3, 9); } else meta(ttl.toUpperCase(), LW / 2, 'center', true); }
+    /* ---- table geometry ---- */
+    var ty = my + 14, dwid = 58, bw = 30, avail = LW - 2 * M - dwid - bw, cw = avail / N, hh = 50, bottom = LH - M;
+    var rh = Math.min(108, (bottom - ty - hh) / nd), th = hh + rh * nd, tx0 = M;
+    function colX(p) { return M + dwid + p * cw + (p >= R.pre ? bw : 0); }
+    var bx0 = M + dwid + R.pre * cw, g = S.gap / 2;
+    /* break column */
+    box(c, bx0 + g, ty + g, bw - S.gap, th - S.gap, S, S.brk, S.line, S.lw);
+    if (hits) hits.push({ x: bx0, y: ty, w: bw, h: th, k: 'break' });
+    var bl = 'BREAK'.split('').concat(['']).concat(R.brk.trim() ? R.brk.trim().split(/\s+/) : []), bs = Math.min(12, (th - hh - 20) / (bl.length * 1.3)), byy = ty + hh + (th - hh - bl.length * bs * 1.25) / 2 + bs;
+    bl.forEach(function (ln, i) { fitText(c, R, ln, bx0 + bw / 2, byy + i * bs * 1.25, bs, i < 5, S.brkTxt, 'center', bw - 4, 6); });
+    /* header row */
+    box(c, tx0 + g, ty + g, dwid - S.gap, hh - S.gap, S, S.corner, S.line, S.lw);
+    var cwords = R.corner.trim().split(/\s+/).filter(Boolean), cs = Math.min(13, (hh - 8) / (cwords.length * 1.25 + 0.2)), cy0 = ty + (hh - cwords.length * cs * 1.2) / 2 + cs * 0.95;
+    cwords.forEach(function (wd, i) { fitText(c, R, wd, tx0 + dwid / 2, cy0 + i * cs * 1.2, cs, true, S.cornerTxt, 'center', dwid - 6, 7); });
+    if (hits) hits.push({ x: tx0, y: ty, w: dwid, h: hh, k: 'corner' });
+    for (var p = 0; p < N; p++) {
+      var x = colX(p);
+      box(c, x + g, ty + g, cw - S.gap, hh - S.gap, S, S.head, S.line, S.lw);
+      var tl = splitTime(R.times[p] || ''), full = (R.times[p] || '').trim(), L = [];
+      c.font = '700 11px ' + fam(R);
+      if (full && c.measureText(full).width <= cw - 10) L = [full]; else if (tl.length === 2) L = [tl[0] + ' –', tl[1]]; else L = full ? [full] : [];
+      var oy = R.ords ? 1 : 0, tot = (oy ? 12 : 0) + L.length * 12.5, yy2 = ty + (hh - tot) / 2 + 9;
+      if (oy) { fitText(c, R, ordn(p), x + cw / 2, yy2, 9.5, false, S.headTxt, 'center', cw - 6, 6); yy2 += 12.5; }
+      L.forEach(function (ln, i) { fitText(c, R, ln, x + cw / 2, yy2 + i * 12.5, 11, true, S.headTxt, 'center', cw - 8, 6.5); });
+      if (!L.length && ui) fitText(c, R, 'time', x + cw / 2, ty + hh / 2 + 4, 10, false, S.headTxt, 'center', cw - 8, 6);
+      if (hits) hits.push({ x: x, y: ty, w: cw, h: hh, k: 'time', p: p });
+    }
+    if (S.headRule) { c.fillStyle = S.headRule; c.fillRect(M, ty + hh - 1.2, LW - 2 * M, 2.4); }
+    /* day rows */
+    R.days.forEach(function (d, di) {
+      var y = ty + hh + di * rh, rowFill = di % 2 ? S.rowB : S.rowA;
+      box(c, tx0 + g, y + g, dwid - S.gap, rh - S.gap, S, S.day, S.line, S.lw);
+      var dsz = Math.min(15, rh * 0.3); fitText(c, R, d.name || ' ', tx0 + dwid / 2, y + rh / 2 + dsz * 0.35, dsz, true, S.dayTxt, 'center', dwid - 8, 7);
+      if (hits) hits.push({ x: tx0, y: y, w: dwid, h: rh, k: 'day', id: d.id });
+      rtSpans(R, d).forEach(function (sp) {
+        var x0 = colX(sp.p0), x1 = colX(sp.p1) + cw, hsl = S.byCourse && sp.cell && sp.cell.c ? hue(nrm(sp.cell.c)) : 0;
+        var fill = S.byCourse && sp.cell && sp.cell.c ? 'hsl(' + hsl + ',70%,' + S.byCourse + '%)' : rowFill;
+        box(c, x0 + g, y + g, x1 - x0 - S.gap, rh - S.gap, S, fill, S.line, S.lw);
+        if (sp.cell) drawCellText(c, R, S, x0 + g, y + g, x1 - x0 - S.gap, rh - S.gap, sp.cell, S.byCourse && sp.cell.c ? hsl : 0);
+        else if (ui) { fitText(c, R, '+', (x0 + x1) / 2, y + rh / 2 + 6, 18, false, tintc(R.ink, 0.72), 'center', 0); }
+        if (hits) hits.push({ x: x0, y: y, w: x1 - x0, h: rh, k: 'cell', id: d.id, p0: sp.p0, p1: sp.p1 });
+      });
+    });
+    if (S.outer) { c.strokeStyle = S.line; c.lineWidth = S.outer; c.strokeRect(M, ty, LW - 2 * M, th); }
+    c.restore();
+  }
+
+  /* ---- preview ---- */
+  function rtSchedule() { if (!rtRaf) rtRaf = requestAnimationFrame(rtRender); }
+  function rtRender() {
+    rtRaf = 0; var app = $('#rtApp'); if (app.hidden) return;
+    var cv = $('#rtCanvas'), st = $('#rtStage'), sz = rtSize(rt), dpr = Math.min(window.devicePixelRatio || 1, 3);
+    var availW = Math.max(200, st.clientWidth - 24), availH = Math.max(160, st.clientHeight - 56);
+    var fitW = Math.min(availW, availH * sz[0] / sz[1]), cssW = Math.round(Math.max(200, fitW) * rtZoom), cssH = Math.round(cssW * sz[1] / sz[0]);
+    cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px'; cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssH * dpr);
+    var c = cv.getContext('2d'); c.setTransform(cv.width / sz[0], 0, 0, cv.height / sz[1], 0, 0);
+    rtHits = []; rtDraw(c, rt, true, rtHits);
+  }
+  function rtThumbs() {
+    var demo = Object.assign({}, rt, { days: rtDefaults().days, pre: 3, post: 3, times: RT_TIMES.slice(), cells: rtSample(rtDefaults().days), sem: 'Fifth', sec: 'A' });
+    document.querySelectorAll('#rtTpls canvas').forEach(function (cv) {
+      var R = Object.assign({}, demo, { tpl: cv.getAttribute('data-rtt') }), sz = rtSize(R);
+      cv.width = 300; cv.height = Math.round(300 * sz[1] / sz[0]);
+      var c = cv.getContext('2d'); c.setTransform(cv.width / sz[0], 0, 0, cv.height / sz[1], 0, 0); rtDraw(c, R, false, null);
+    });
+  }
+  function rtSample(days) {
+    var S = {}, put = function (di, p0, p1, o) { for (var p = p0; p <= p1; p++) S[rtKey(days[di].id, p)] = { c: o[0] || '', n: o[1] || '', t: o[2] || '', r: o[3] || '', g: o[4] || '' }; };
+    put(0, 0, 2, ['PHY-1204', 'PHY_LAB', 'AAM_CU', 'CX303']); put(0, 3, 5, ['PHY-1201', '', 'AAM_CU', 'CX502']);
+    put(1, 0, 0, ['EEE-1221', '', 'SHR', 'CX404']); put(1, 1, 2, ['CSE-1230', 'CP_LAB', '', '', '2AM | CX204\n2BM | C501\n2CM | C301\n2DM | CX402']); put(1, 3, 3, ['CSE-1221', '', 'MNH', 'CX501']); put(1, 4, 5, ['MATH 1207', '', 'MH', 'CX501']);
+    put(2, 0, 0, ['CSE-1223', '', 'MOH', 'CX404']); put(2, 1, 2, ['GEED 1201', '', 'MOA_CGED', 'CX404']); put(2, 3, 5, ['EEE-1222', 'Instru_Lab', 'SHR', 'CX304']);
+    put(3, 0, 1, ['EEE-1221', '', 'SHR', 'CX102']); put(3, 2, 2, ['MATH 1207', '', 'MH', 'CX102']); put(3, 3, 5, ['CSE-1222', 'Lab', 'MNH', 'C501']);
+    put(4, 0, 1, ['CSE-1221', '', 'MNH', 'CXB_204']); put(4, 2, 2, ['MDP-1202', '', 'PDABR', '']); put(4, 4, 5, ['CSE-1223', '', 'MOH', 'CX501']);
+    return S;
+  }
+
+  /* ---- side panel wiring ---- */
+  function rtFill() {
+    $('#rtUni').value = rt.uni; $('#rtDept').value = rt.dept; $('#rtSem').value = rt.sem; $('#rtSec').value = rt.sec; $('#rtTitle').value = rt.title; $('#rtLogo').checked = rt.logo;
+    $('#rtPri').value = rt.pri; $('#rtAcc').value = rt.acc; $('#rtInk').value = rt.ink; $('#rtBg').value = rt.bg; $('#rtPaper').value = rt.paper; $('#rtFont').value = rt.font;
+    rtSteps(); $('#rtBrk').value = rt.brk; $('#rtFname').value = rt.fname; $('#rtCorner').value = rt.corner; $('#rtOrds').checked = rt.ords;
+    ['#rtDeptSel', '#rtSemSel', '#rtSecSel'].forEach(function (s) { $(s).value = ''; });
+    document.querySelectorAll('#rtTpls .rt-tpl').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-rtt') === rt.tpl)); });
+    document.querySelectorAll('#rtPals .rt-pal').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-i') === rt.pal)); });
+    rtDays(); rtTimes(); rtLists();
+  }
+  function rtChanged(thumbs) { rtSave(); rtSchedule(); if (thumbs) rtThumbs(); }
+  function rtDays() {
+    var box = $('#rtDays'); box.innerHTML = '';
+    rt.days.forEach(function (d, i) {
+      var row = document.createElement('div'); row.className = 'rt-row';
+      var inp = document.createElement('input'); inp.type = 'text'; inp.maxLength = 12; inp.value = d.name; inp.setAttribute('aria-label', 'Day ' + (i + 1) + ' name');
+      inp.addEventListener('input', function () { d.name = inp.value; rtChanged(); });
+      function mk(t, label, fn, dis) { var b = document.createElement('button'); b.type = 'button'; b.className = 'rt-mini'; b.textContent = t; b.setAttribute('aria-label', label); b.disabled = !!dis; b.addEventListener('click', fn); return b; }
+      row.appendChild(inp);
+      row.appendChild(mk('▲', 'Move up', function () { rt.days.splice(i - 1, 0, rt.days.splice(i, 1)[0]); rtDays(); rtChanged(true); }, i === 0));
+      row.appendChild(mk('▼', 'Move down', function () { rt.days.splice(i + 1, 0, rt.days.splice(i, 1)[0]); rtDays(); rtChanged(true); }, i === rt.days.length - 1));
+      row.appendChild(mk('✕', 'Remove day', function () {
+        if (rt.days.length <= 1) return;
+        Object.keys(rt.cells).forEach(function (k) { if (k.split(':')[0] === d.id) delete rt.cells[k]; });
+        rt.days.splice(i, 1); rtDays(); rtChanged(true);
+      }, rt.days.length <= 1));
+      box.appendChild(row);
+    });
+    rtSteps();
+  }
+  function rtTimes() {
+    var box = $('#rtTimes'); box.innerHTML = '';
+    for (var p = 0; p < rt.pre + rt.post; p++) (function (p) {
+      var row = document.createElement('div'); row.className = 'rt-row';
+      var b = document.createElement('b'); b.textContent = ordn(p);
+      var inp = document.createElement('input'); inp.type = 'text'; inp.maxLength = 30; inp.value = rt.times[p] || ''; inp.setAttribute('aria-label', ordn(p) + ' period time'); inp.placeholder = 'e.g. 10:40 AM - 11:30 AM';
+      inp.addEventListener('input', function () { rt.times[p] = inp.value; rtChanged(); });
+      row.appendChild(b); row.appendChild(inp); box.appendChild(row);
+    })(p);
+  }
+  function rtLists() {
+    var sets = { C: {}, T: {}, R: {} };
+    Object.keys(rt.cells).forEach(function (k) { var c = rt.cells[k]; if (c.c) sets.C[c.c] = 1; if (c.t) sets.T[c.t] = 1; if (c.r) sets.R[c.r] = 1; });
+    ['C', 'T', 'R'].forEach(function (k) { var dl = $('#rtDl' + k); dl.innerHTML = ''; Object.keys(sets[k]).sort().forEach(function (v) { var o = document.createElement('option'); o.value = v; dl.appendChild(o); }); });
+  }
+  function nextTime(prev) {
+    var m = /(\d{1,2}):(\d{2})\s*([AP]M)\s*$/i.exec(String(prev || '')); if (!m) return '';
+    var h = +m[1] % 12 + (/p/i.test(m[3]) ? 12 : 0), mi = +m[2], t0 = h * 60 + mi, t1 = t0 + 50;
+    function f(t) { t = t % 1440; var hh = Math.floor(t / 60), ap = hh >= 12 ? 'PM' : 'AM', h12 = hh % 12 || 12, mm = ('0' + (t % 60)).slice(-2); return h12 + ':' + mm + ' ' + ap; }
+    return f(t0) + ' - ' + f(t1);
+  }
+  var RT_WEEK = ['Sat', 'Sun', 'Mon', 'Tues', 'Wed', 'Thu', 'Fri'];
+  /* the next weekday after the last row (Sat, Sun, Mon, Tues, Wed, Thu, Fri, then Sat again) */
+  function rtNextDay() {
+    var last = rt.days.length ? String(rt.days[rt.days.length - 1].name).trim().toLowerCase().slice(0, 3) : '', i = -1;
+    RT_WEEK.forEach(function (w, k) { if (w.toLowerCase().slice(0, 3) === last) i = k; });
+    if (i < 0) { var free = RT_WEEK.filter(function (w) { return !rt.days.some(function (d) { return String(d.name).trim().toLowerCase().slice(0, 3) === w.toLowerCase().slice(0, 3); }); })[0]; return free || 'Sat'; }
+    return RT_WEEK[(i + 1) % 7];
+  }
+  function rtSteps() {
+    $('#rtPreV').textContent = rt.pre; $('#rtPostV').textContent = rt.post; $('#rtRowsV').textContent = rt.days.length;
+    $('#rtPreM').disabled = rt.pre <= 1; $('#rtPreP').disabled = rt.pre >= 6; $('#rtPostM').disabled = rt.post <= 1; $('#rtPostP').disabled = rt.post >= 6;
+    $('#rtRowsM').disabled = rt.days.length <= 1; $('#rtRowsP').disabled = rt.days.length >= 10;
+  }
+  function rtRemap(newPre, newPost) {
+    var oldPre = rt.pre, oldPost = rt.post, nt = [], nc = {};
+    for (var p = 0; p < newPre; p++) nt.push(p < oldPre ? rt.times[p] : '');
+    for (p = 0; p < newPost; p++) nt.push(p < oldPost ? rt.times[oldPre + p] : '');
+    Object.keys(rt.cells).forEach(function (k) {
+      var m = k.split(':'), q = +m[1], np;
+      if (q < oldPre) np = q < newPre ? q : -1; else np = q - oldPre < newPost ? newPre + (q - oldPre) : -1;
+      if (np >= 0) nc[m[0] + ':' + np] = rt.cells[k];
+    });
+    for (p = 0; p < nt.length; p++) if (!nt[p] && p > 0) nt[p] = nextTime(nt[p - 1]);
+    rt.pre = newPre; rt.post = newPost; rt.times = nt; rt.cells = nc;
+  }
+  function rtBind() {
+    function txt(id, key, thumbs) { $(id).addEventListener('input', function () { rt[key] = this.value; rtChanged(thumbs); }); }
+    txt('#rtUni', 'uni'); txt('#rtDept', 'dept'); txt('#rtSem', 'sem'); txt('#rtSec', 'sec'); txt('#rtTitle', 'title'); txt('#rtBrk', 'brk'); txt('#rtFname', 'fname'); txt('#rtCorner', 'corner');
+    $('#rtLogo').addEventListener('change', function () { rt.logo = this.checked; rtChanged(true); });
+    $('#rtOrds').addEventListener('change', function () { rt.ords = this.checked; rtChanged(); });
+    $('#rtPaper').addEventListener('change', function () { rt.paper = this.value; rtChanged(true); });
+    $('#rtFont').addEventListener('change', function () { rt.font = this.value; rtEnsureFont(rt).then(function () { rtChanged(true); }); rtChanged(true); });
+    DEPTS.forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n.replace(/^Department of /, ''); $('#rtDeptSel').appendChild(o); });
+    [['#rtDeptSel', '#rtDept', 'dept'], ['#rtSemSel', '#rtSem', 'sem'], ['#rtSecSel', '#rtSec', 'sec']].forEach(function (g) {
+      var s = $(g[0]); if (g[2] !== 'dept') { var first = document.createElement('option'); first.value = ''; first.textContent = 'Choose'; s.insertBefore(first, s.firstChild); } else { var f0 = document.createElement('option'); f0.value = ''; f0.textContent = 'Choose'; s.insertBefore(f0, s.firstChild); }
+      s.addEventListener('change', function () { if (!this.value) return; $(g[1]).value = this.value; rt[g[2]] = this.value; this.value = ''; rtChanged(); });
+    });
+    SEMS.forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; $('#rtSemSel').appendChild(o); });
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n; $('#rtSecSel').appendChild(o); });
+    var tb = $('#rtTpls');
+    RT_TPLS.forEach(function (t) {
+      var b = document.createElement('button'), cv = document.createElement('canvas'); b.type = 'button'; b.className = 'rt-tpl'; b.setAttribute('data-rtt', t[0]); cv.setAttribute('data-rtt', t[0]);
+      b.appendChild(cv); b.appendChild(document.createTextNode(t[1]));
+      b.addEventListener('click', function () { rt.tpl = t[0]; rtFill(); rtChanged(false); }); tb.appendChild(b);
+    });
+    var pb = $('#rtPals');
+    RT_PALS.forEach(function (pl, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'rt-pal'; b.setAttribute('data-i', i); b.setAttribute('aria-label', 'Color theme ' + (i + 1));
+      b.innerHTML = '<i style="background:' + pl[0] + '"></i><i style="background:' + pl[1] + '"></i>';
+      b.addEventListener('click', function () { rt.pal = i; rt.pri = pl[0]; rt.acc = pl[1]; rt.ink = pl[2]; rt.bg = pl[3]; rtFill(); rtChanged(true); }); pb.appendChild(b);
+    });
+    [['#rtPri', 'pri'], ['#rtAcc', 'acc'], ['#rtInk', 'ink'], ['#rtBg', 'bg']].forEach(function (g) {
+      $(g[0]).addEventListener('input', function () { rt[g[1]] = this.value; rt.pal = -1; document.querySelectorAll('#rtPals .rt-pal').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); }); rtChanged(); });
+      $(g[0]).addEventListener('change', function () { rtThumbs(); });
+    });
+    function counts(pre, post) { rtRemap(Math.max(1, Math.min(6, pre)), Math.max(1, Math.min(6, post))); rtTimes(); rtLists(); rtSteps(); rtChanged(true); }
+    $('#rtPreM').addEventListener('click', function () { counts(rt.pre - 1, rt.post); }); $('#rtPreP').addEventListener('click', function () { counts(rt.pre + 1, rt.post); });
+    $('#rtPostM').addEventListener('click', function () { counts(rt.pre, rt.post - 1); }); $('#rtPostP').addEventListener('click', function () { counts(rt.pre, rt.post + 1); });
+    $('#rtRowsP').addEventListener('click', function () {
+      if (rt.days.length >= 10) return;
+      rt.days.push({ id: 'd' + rt.nid++, name: rtNextDay() }); rtDays(); rtChanged(true);
+    });
+    $('#rtRowsM').addEventListener('click', function () {
+      if (rt.days.length <= 1) return; var d = rt.days.pop();
+      Object.keys(rt.cells).forEach(function (k) { if (k.split(':')[0] === d.id) delete rt.cells[k]; }); rtDays(); rtLists(); rtChanged(true);
+    });
+    $('#rtTimesReset').addEventListener('click', function () { for (var p = 0; p < rt.pre + rt.post; p++) rt.times[p] = (rt.pre === 3 && rt.post === 3) ? RT_TIMES[p] : (rt.times[p] || ''); if (!(rt.pre === 3 && rt.post === 3)) { rtNote('Default times fit 3 + 3 periods. Set 3 before and 3 after the break first.', true); return; } rtTimes(); rtChanged(); rtNote('Times reset.'); });
+    $('#rtSample').addEventListener('click', function () {
+      if (rt.pre !== 3 || rt.post !== 3) { rtRemap(3, 3); rt.times = RT_TIMES.slice(); }
+      rt.days = rtDefaults().days; rt.nid = 6; rt.cells = rtSample(rt.days); rtFill(); rtChanged(true); rtNote('Sample classes added. Tap any box to change it.');
+    });
+    var clr = 0;
+    $('#rtClear').addEventListener('click', function () {
+      var b = this; if (!clr) { b.textContent = 'Click again to clear'; clr = setTimeout(function () { clr = 0; b.textContent = 'Clear all classes'; }, 4000); return; }
+      clearTimeout(clr); clr = 0; b.textContent = 'Clear all classes'; rt.cells = {}; rtLists(); rtChanged(true); rtNote('All classes cleared.');
+    });
+  }
+
+  /* ---- editing: click a box ---- */
+  function rtHit(ev) {
+    var cv = $('#rtCanvas'), r = cv.getBoundingClientRect(), sz = rtSize(rt), x = (ev.clientX - r.left) / r.width * sz[0], y = (ev.clientY - r.top) / r.height * sz[1], h = null;
+    for (var i = rtHits.length - 1; i >= 0; i--) { var q = rtHits[i]; if (x >= q.x && x <= q.x + q.w && y >= q.y && y <= q.y + q.h) { h = q; break; } }
+    return h;
+  }
+  function rtOpen(d) { if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+  function rtShut(d) { if (d.close) d.close(); else d.removeAttribute('open'); }
+  function rtTxtEdit(title, label, val, max, cb) {
+    var d = $('#rtTxtDlg'); $('#rtTxtTitle').textContent = title; $('#rtTxtLbl').textContent = label; var i = $('#rtTxtIn'); i.maxLength = max; i.value = val;
+    rtEdit = { txt: cb }; rtOpen(d); setTimeout(function () { try { i.focus(); i.select(); } catch (e) {} }, 30);
+  }
+  function rtCellEdit(h) {
+    var day = rt.days.filter(function (d) { return d.id === h.id; })[0]; if (!day) return;
+    var span = rtSpans(rt, day).filter(function (s) { return s.p0 === h.p0; })[0], c = (span && span.cell) || rtCell(day.id, h.p0) || { c: '', n: '', t: '', r: '', g: '' };
+    $('#rtCellTitle').textContent = rtEmpty(c) ? 'Add a class' : 'Edit class'; $('#rtCellSub').textContent = day.name + ' · ' + ordn(h.p0) + (h.p1 > h.p0 ? ' to ' + ordn(h.p1) : '') + ' period';
+    $('#rtfC').value = c.c; $('#rtfN').value = c.n; $('#rtfT').value = c.t; $('#rtfR').value = c.r; $('#rtfG').value = c.g;
+    var sel = {}, orig = {}; for (var p = h.p0; p <= h.p1; p++) { sel[p] = true; orig[p] = true; }
+    var chips = $('#rtfP'); chips.innerHTML = '';
+    for (p = 0; p < rt.pre + rt.post; p++) (function (p) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'rt-chip'; b.textContent = ordn(p) + (p === rt.pre - 1 && rt.post ? '' : ''); b.setAttribute('aria-pressed', String(!!sel[p]));
+      b.addEventListener('click', function () { sel[p] = !sel[p]; b.setAttribute('aria-pressed', String(!!sel[p])); }); chips.appendChild(b);
+    })(p);
+    rtEdit = { cell: day.id, sel: sel, orig: orig }; rtLists(); rtOpen($('#rtCellDlg')); setTimeout(function () { try { $('#rtfC').focus(); } catch (e) {} }, 30);
+  }
+  function rtWire() {
+    $('#rtCanvas').addEventListener('click', function (ev) {
+      var h = rtHit(ev); if (!h) return;
+      if (h.k === 'cell') rtCellEdit(h);
+      else if (h.k === 'time') rtTxtEdit(ordn(h.p) + ' period time', 'Time (e.g. 10:40 AM - 11:30 AM)', rt.times[h.p] || '', 30, function (v) { rt.times[h.p] = v; rtTimes(); });
+      else if (h.k === 'day') { var d = rt.days.filter(function (x) { return x.id === h.id; })[0]; rtTxtEdit('Day name', 'Name', d.name, 12, function (v) { d.name = v; rtDays(); }); }
+      else if (h.k === 'break') rtTxtEdit('Break text', 'Text under BREAK', rt.brk, 30, function (v) { rt.brk = v; $('#rtBrk').value = v; });
+      else if (h.k === 'corner') rtTxtEdit('Top-left box', 'Text', rt.corner, 20, function (v) { rt.corner = v; $('#rtCorner').value = v; });
+    });
+    $('#rtTxtSave').addEventListener('click', function () { if (rtEdit && rtEdit.txt) { rtEdit.txt($('#rtTxtIn').value); rtChanged(); } rtEdit = null; rtShut($('#rtTxtDlg')); });
+    $('#rtTxtIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#rtTxtSave').click(); });
+    $('#rtTxtCancel').addEventListener('click', function () { rtEdit = null; rtShut($('#rtTxtDlg')); });
+    /* when a known course code is typed, fill the name and teacher from the earlier entry */
+    $('#rtfC').addEventListener('change', function () {
+      var v = nrm(this.value); if (!v) return;
+      var hit = Object.keys(rt.cells).map(function (k) { return rt.cells[k]; }).filter(function (c) { return nrm(c.c) === v; })[0];
+      if (hit) { if (!$('#rtfN').value && hit.n) $('#rtfN').value = hit.n; if (!$('#rtfT').value && hit.t) $('#rtfT').value = hit.t; }
+    });
+    $('#rtfSave').addEventListener('click', function () {
+      if (!rtEdit || !rtEdit.cell) return;
+      var v = { c: tidy($('#rtfC').value), n: tidy($('#rtfN').value), t: tidy($('#rtfT').value), r: tidy($('#rtfR').value), g: $('#rtfG').value.split('\n').map(tidy).filter(Boolean).join('\n').slice(0, 200) };
+      var any = false; for (var p in rtEdit.sel) if (rtEdit.sel[p]) any = true;
+      if (!any && !rtEmpty(v)) { rtNote('Choose at least one period for this class.', true); return; }
+      for (p in rtEdit.orig) if (!rtEdit.sel[p]) delete rt.cells[rtKey(rtEdit.cell, p)];
+      for (p in rtEdit.sel) if (rtEdit.sel[p]) { if (rtEmpty(v)) delete rt.cells[rtKey(rtEdit.cell, p)]; else rt.cells[rtKey(rtEdit.cell, p)] = { c: v.c, n: v.n, t: v.t, r: v.r, g: v.g }; }
+      rtEdit = null; rtShut($('#rtCellDlg')); rtLists(); rtChanged(true);
+    });
+    $('#rtfClear').addEventListener('click', function () {
+      if (!rtEdit || !rtEdit.cell) return;
+      for (var p in rtEdit.orig) delete rt.cells[rtKey(rtEdit.cell, p)];
+      rtEdit = null; rtShut($('#rtCellDlg')); rtLists(); rtChanged(true);
+    });
+    $('#rtfCancel').addEventListener('click', function () { rtEdit = null; rtShut($('#rtCellDlg')); });
+    ['#rtCellDlg', '#rtTxtDlg'].forEach(function (id) {
+      $(id).addEventListener('click', function (e) { if (e.target === this) { rtEdit = null; rtShut(this); } });
+      $(id).addEventListener('cancel', function (e) { e.stopPropagation(); rtEdit = null; });
+    });
+    $('#rtZin').addEventListener('click', function () { rtZoom = Math.min(3, Math.round((rtZoom + 0.25) * 100) / 100); rtSchedule(); });
+    $('#rtZout').addEventListener('click', function () { rtZoom = Math.max(0.5, Math.round((rtZoom - 0.25) * 100) / 100); rtSchedule(); });
+    $('#rtZfit').addEventListener('click', function () { rtZoom = 1; rtSchedule(); });
+    window.addEventListener('resize', rtSchedule);
+  }
+
+  /* ---- export ---- */
+  function rtCanvasFor(scale, wm) {
+    var sz = rtSize(rt), P = RT_PAPERS[rt.paper] || RT_PAPERS.a4, w = Math.round(P[0] * scale), h = Math.round(P[1] * scale);
+    var px = w * h; if (px > 16e6) { var k = Math.sqrt(16e6 / px); w = Math.round(w * k); h = Math.round(h * k); }
+    var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    var c = cv.getContext('2d'); c.setTransform(w / sz[0], 0, 0, h / sz[1], 0, 0); rtDraw(c, rt, false, null); if (wm) rtGroot(c, 26, sz[1] - 9, 10, 0.45); return cv;
+  }
+  /* small colour-gradient "Groot" mark with the sprout and eyes, drawn at the bottom-left of the PDF only */
+  function rtGroot(c, x, y, s, alpha) {
+    c.save(); c.globalAlpha = alpha; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    c.font = '700 ' + s + 'px Fredoka, "Arial Rounded MT Bold", ' + (RT_FONTS.poppins) + ', sans-serif';
+    var w = c.measureText('Groot').width, gr = c.createLinearGradient(x, 0, x + w, 0);
+    [[0, '#2e9e5b'], [0.25, '#5cc27a'], [0.5, '#14999c'], [0.75, '#5cc27a'], [1, '#2e9e5b']].forEach(function (q) { gr.addColorStop(q[0], q[1]); });
+    c.fillStyle = gr; c.fillText('Groot', x, y);
+    var wG = c.measureText('G').width, wGr = c.measureText('Gr').width, wGro = c.measureText('Gro').width, wGroo = c.measureText('Groo').width;
+    [[wGr, wGro], [wGro, wGroo]].forEach(function (q) {
+      var cx = x + (q[0] + q[1]) / 2, cy = y - s * 0.27;
+      c.fillStyle = '#ffffff'; c.beginPath(); c.arc(cx, cy, s * 0.15, 0, 6.2832); c.fill();
+      c.fillStyle = '#13202f'; c.beginPath(); c.arc(cx, cy, s * 0.075, 0, 6.2832); c.fill();
+    });
+    var tx = x + (wGroo + w) / 2, k = s * 0.7 / 20; c.translate(tx - 10 * k, y - s * 1.2); c.scale(k, k);
+    [['M10 19C4 17 2 11 3 5C8 7 10 12 10 19Z', '#5cc27a'], ['M10 19C16 17 18 11 17 5C12 7 10 12 10 19Z', '#7cc243'], ['M10 19C6 13 7 6 10 1C13 6 14 13 10 19Z', '#2e9e5b']].forEach(function (l) { c.fillStyle = l[1]; c.fill(new Path2D(l[0])); });
+    c.restore();
+  }
+  function rtFileName() {
+    var custom = String(rt.fname || '').replace(/\.(pdf|png|jpe?g)$/i, '').replace(/[\\\/:*?"<>|\u0000-\u001f]+/g, '-').replace(/\s+/g, ' ').trim().replace(/^[-. ]+|[-. ]+$/g, '');
+    if (custom) return custom;
+    var s = function (x) { return String(x || '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }; return ['Class-Routine', s(rt.sem), s(rt.sec)].filter(Boolean).join('_');
+  }
+  async function rtSaveFile(kind, btn) {
+    if (rtBusy) return;
+    if (kind === 'pdf' && !window.jspdf) { rtNote('The PDF library failed to load. Check your connection and reload.', true); return; }
+    rtBusy = true;
+    try {
+      var P = RT_PAPERS[rt.paper] || RT_PAPERS.a4, dl = await getDownloads(), name = rtFileName() + '.' + kind, data, mime;
+      await rtEnsureFont(rt); var cv = rtCanvasFor(kind === 'pdf' ? 3.4 : 3, kind === 'pdf');
+      if (kind === 'pdf') {
+        var doc = new window.jspdf.jsPDF({ unit: 'pt', format: [P[0], P[1]], orientation: 'landscape', compress: true });
+        doc.addImage(cv.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, P[0], P[1], undefined, 'FAST');
+        doc.setProperties({ title: 'Class Routine ' + rt.sem + ' ' + rt.sec }); data = doc.output('arraybuffer'); mime = 'application/pdf';
+      } else {
+        mime = kind === 'jpg' ? 'image/jpeg' : 'image/png';
+        data = await new Promise(function (res, rej) { cv.toBlob(function (b) { if (b) b.arrayBuffer().then(res); else rej(new Error('image')); }, mime, 0.95); });
+      }
+      if (dl) await dl.save({ filename: name, data: data });
+      else if (!window.claude) browserDownload(name, data, mime);
+      else { rtNote('Downloads are blocked in this view. Open the published page and try again.', true); return; }
+      rtNote(kind.toUpperCase() + ' saved: ' + name);
+    } catch (e) {
+      if (e && e.code === 'declined') rtNote('Download cancelled.'); else rtNote('Could not create the file' + (e && (e.code || e.message) ? ' (' + (e.code || e.message) + ')' : '') + '.', true);
+    } finally { rtBusy = false; }
+  }
+  function rtPrint() {
+    try {
+      var P = RT_PAPERS[rt.paper] || RT_PAPERS.a4, url = rtCanvasFor(3).toDataURL('image/png'), f = document.createElement('iframe');
+      f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden'; document.body.appendChild(f);
+      var d = f.contentWindow.document; d.open();
+      d.write('<!doctype html><html><head><title>Class Routine</title><style>@page{size:' + P[0] + 'pt ' + P[1] + 'pt;margin:0}html,body{margin:0;padding:0}img{display:block;width:' + (P[0] - 0.6) + 'pt;height:' + (P[1] - 0.6) + 'pt}</style></head><body><img src="' + url + '"></body></html>'); d.close();
+      var img = d.querySelector('img'), go = function () { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { rtNote('Printing is not available here. Use Download PDF.', true); } setTimeout(function () { f.remove(); }, 60000); };
+      if (img.complete) go(); else img.onload = go;
+    } catch (e) { rtNote('Printing is not available here. Use Download PDF.', true); }
+  }
+
+  /* ---- open / close ---- */
+  var rtPushed = false;
+  function rtShow() {
+    var app = $('#rtApp'); if (!app.hidden) return;
+    app.hidden = false; document.body.style.overflow = 'hidden'; rtFill(); rtThumbs(); rtSchedule(); rtEnsureFont(rt).then(function () { rtThumbs(); rtSchedule(); });
+    try { history.pushState({ rt: 1 }, ''); rtPushed = true; } catch (e) { rtPushed = false; }
+    setTimeout(function () { try { $('#rtBack').focus(); } catch (e) {} }, 30);
+  }
+  function rtHide() { var app = $('#rtApp'); if (app.hidden) return; app.hidden = true; document.body.style.overflow = ''; rtShut($('#rtCellDlg')); rtShut($('#rtTxtDlg')); try { $('#menuBtn').focus(); } catch (e) {} }
+  function rtBack() { if (rtPushed) { rtPushed = false; try { history.back(); return; } catch (e) {} } rtHide(); }
+  function rtInit() {
+    rt = rtLoad(); rtBind(); rtWire();
+    $('#rtBack').addEventListener('click', rtBack);
+    $('#rtPdf').addEventListener('click', function () { rtSaveFile('pdf'); }); $('#rtPng').addEventListener('click', function () { rtSaveFile('png'); }); $('#rtJpg').addEventListener('click', function () { rtSaveFile('jpg'); });
+    $('#rtPrint').addEventListener('click', rtPrint);
+    window.addEventListener('popstate', function (e) { if (!$('#rtApp').hidden && !(e.state && e.state.rt)) { rtPushed = false; rtHide(); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#rtApp').hidden && !$('#rtCellDlg').open && !$('#rtTxtDlg').open) rtBack(); });
+    $('#openRoutine').addEventListener('click', function () {
+      var done = false, go = function () { if (done) return; done = true; rtShow(); };
+      window.addEventListener('popstate', function once() { window.removeEventListener('popstate', once); setTimeout(go, 0); });
+      $('#drClose').click(); setTimeout(go, 350);
+    });
+  }
+  rtInit();
+
   fillForm();
-  loadAssets().then(function () { fontsReady = true; render(); });
+  loadAssets().then(function () { fontsReady = true; render(); rtSchedule(); rtThumbs(); });
 })();
 </script>
 <script>
